@@ -7,7 +7,9 @@ export default function Navbar() {
     <nav className={styles.navbar}>
       {/* LOGO - Top Left */}
       <Link href="/">
-        <span className={styles.logo}>LOGO</span>
+        <span className={styles.logo}>
+           LatticeTalk
+        </span>
       </Link>
 
       {/* Centered Navigation Links */}
