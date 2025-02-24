@@ -1,5 +1,5 @@
-import { connectToDatabase } from "@/backend/lib/mongodb";
-import EncryptionKey from "@/backend/models/EncryptionKey";
+import { connectToDatabase } from "@/lib/mongodb";
+import EncryptionKey from "@/models/EncryptionKey";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
