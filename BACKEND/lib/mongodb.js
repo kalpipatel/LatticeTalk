@@ -1,4 +1,10 @@
+// This file is responsible for managing the MongoDB connection using Mongoose
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+import path from 'path';
+
+
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
 const MONGODB_URI = process.env.MONGODB_URI 
 
@@ -26,5 +32,4 @@ export async function connectToDatabase() {
     cached.conn = await cached.promise; // waits for connection
     return cached.conn;
 }
-
 
