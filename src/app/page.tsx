@@ -6,6 +6,9 @@ import styles from "./page.module.css"; // Importing CSS module
 export default function Home() {
   return (
     <div className={styles.page}>
+      {/* Animated Background */}
+      <div className={styles.animatedGrid}></div>
+      
       {/* Navbar (empty or custom content) */}
       <nav className={styles.navbar}>
         {/* You can add your own links or content here */}
