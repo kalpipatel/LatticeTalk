@@ -74,12 +74,17 @@ io.on("connection", (socket) => {
             chatId,
             sender: senderId,
             receiver: receiverId,
-            message, 
+            encryptedMsg,
+            ciphertextKem,
+            signature, 
+            /*
             encryption: {
                 encrypted: true,
                 algorithm: "Kyber",
             },
+            */
             delivered: onlineUsers[receiverId] ? true : false, // Mark delivered only if user is online
+            // ^ add to Message schema?
         });
 
         await newMessage.save();

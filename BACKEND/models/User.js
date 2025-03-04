@@ -5,7 +5,8 @@ const UserSchema = new mongoose.Schema({
   username: { type: String, unique: true, required: true },
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },  
-  publicKey: { type: String, required: true },  // Store public key for encryption
+  publicKey: { type: String, required: true },
+  privateKey: { type: String, required: true },
 });
 
 // checks if the User already exists in mongoose.models, otherwise creates one

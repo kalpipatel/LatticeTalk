@@ -8,7 +8,9 @@ const MessageSchema = new mongoose.Schema({
     receiver: { type: String, required: true },
     message: { type: String, required: true },
     timestamp: { type: Date, default: Date.now },
-    encrypted: { type: Boolean, default: true },  // do we need this? + change 
+    ciphertextKem: { type: String, required: true }, // Kyber key
+    encryptedMsg: { type: String, required: true }, // AES text
+    signature: { type: String, required: true }, // Dilithium signature
 });
 
 export default mongoose.models.Message || mongoose.model("Message", MessageSchema);
