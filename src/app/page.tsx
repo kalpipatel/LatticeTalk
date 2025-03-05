@@ -39,24 +39,26 @@ export default function Home() {
   }
 };
 
-  const postSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+ const postSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
-  setError(null); // Clear previous errors
+  setError(null); 
 
   const endpoint = `/api/users`;
   const payload = { username, email, password };
 
   try {
+    
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
 
     const data = await response.json();
 
+    
     if (!response.ok) {
       throw new Error(data.error || "Failed to sign up");
     }

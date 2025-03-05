@@ -5,10 +5,10 @@ const UserSchema = new mongoose.Schema({
   username: { type: String, unique: true, required: true },
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },  
-  kyberPubKey: { type: String, required: true },
-  kyberPrivKey: { type: String, required: true },
-  signPubKey: { type: String, required: true },
-  signPrivKey: { type: String, required: true },
+  kyberPub: { type: String, required: true },
+  kyberPriv: { type: String, required: true },
+  signPub: { type: String, required: true },
+  signPriv: { type: String, required: true },
 });
 
 // checks if the User already exists in mongoose.models, otherwise creates one

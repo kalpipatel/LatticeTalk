@@ -1,34 +1,60 @@
 //change based on how to get to on ur computer
 import { connectToDatabase } from "@/../BACKEND/lib/mongodb";
 import User from "@/../BACKEND/models/User";
+import { generateKeys } from "@/../BACKEND/encryption.js";
 import { NextResponse } from "next/server";
-
 
 export async function POST(req) {
   try {
-    await connectToDatabase();
-    const { username, email, password , kyberPub,kyberPriv,signPub,signPriv} = await req.json();
+    
+    const requestData = await req.json();
+    console.log("Incoming request data:", requestData);
 
+    
+    await connectToDatabase();
+
+    
+    const { kyberPub, kyberPriv, signPub, signPriv } = generateKeys();
+
+   
+    const { username, email, password } = requestData;
+
+    
     if (!username || !email || !password) {
+      console.log("Missing required fields:", { username, email, password });
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
     
     const existingUser = await User.findOne({ email });
+    console.log("Existing user found:", existingUser);
+
     if (existingUser) {
       return NextResponse.json({ error: "User already exists" }, { status: 400 });
     }
 
+    
+    const newUser = new User({
+      username,
+      email,
+      password,
+      kyberPub,
+      kyberPriv,
+      signPub,
+      signPriv
+    });
 
-    const newUser = new User({ username, email, password });
+    
     await newUser.save();
+    console.log("New user created:", newUser);
 
     return NextResponse.json({ message: "User created successfully" }, { status: 201 });
   } catch (error) {
-    console.error("Error in sign-up:", error);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    console.error("Error in sign-up:", error); 
+    return NextResponse.json({ error: "Server error", details: error.message }, { status: 500 });
   }
 }
+
 
 export async function GET(req) {
   try {

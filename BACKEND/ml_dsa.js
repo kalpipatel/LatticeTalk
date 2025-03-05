@@ -12,7 +12,7 @@ class TextEncoder {
 }
 
 // generates a key pair using SHAKE-256 one with 64 byts and the other with 32 bytes
-function generateKeyPair() {
+export function generateKeyPair() {
     const seed = new Uint8Array(32);// creates a 32 byte seed in the form of an array
     crypto.getRandomValues(seed);// generates random values for the seed
     const privateKey = shake256(seed, { dkLen: 64 });// creates a 64 byte private key
@@ -21,13 +21,13 @@ function generateKeyPair() {
 }
 
 // Signs a message using SHAKE-256
-function signMessage(privateKey, message) {
+export function signMessage(privateKey, message) {
     const msgEncoded = new TextEncoder().encode(message);//encodes the message to bytes
     return shake256(new Uint8Array([...privateKey, ...msgEncoded]), { dkLen: 32 });
 }
 
 // Verifies a signed message using SHAKE-256
-function verifySignature(privateKey, message, signature) {
+export function verifySignature(privateKey, message, signature) {
     const msgEncoded = new TextEncoder().encode(message);
     const computedSignature = shake256(new Uint8Array([...privateKey, ...msgEncoded]), { dkLen: 32 });
 
@@ -39,7 +39,7 @@ function verifySignature(privateKey, message, signature) {
 }
 
 // Example test case
-function testSigning() {
+export function testSigning() {
     const { privateKey, publicKey } = generateKeyPair();
     const message = "test message";
     const signature = signMessage(privateKey, message);
