@@ -13,13 +13,13 @@ export async function POST(req) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
-    // Check if user already exists
+    
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return NextResponse.json({ error: "User already exists" }, { status: 400 });
     }
 
-    // Create and save new user **(WITHOUT HASHING)**
+
     const newUser = new User({ username, email, password });
     await newUser.save();
 
@@ -42,7 +42,7 @@ export async function GET(req) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
-    // Check if user exists
+    
     const existingUser = await User.findOne({ username });
     if (existingUser) {
       return NextResponse.json({ message: "Signed In Successfully" }, { status: 201 });
