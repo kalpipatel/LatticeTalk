@@ -77,12 +77,7 @@ io.on("connection", (socket) => {
             encryptedMsg,
             ciphertextKem,
             signature, 
-            /*
-            encryption: {
-                encrypted: true,
-                algorithm: "Kyber",
-            },
-            */
+
             delivered: onlineUsers[receiverId] ? true : false, // Mark delivered only if user is online
             // ^ add to Message schema?
         });

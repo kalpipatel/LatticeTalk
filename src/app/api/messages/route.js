@@ -2,31 +2,39 @@
 // POST for storing a new message in the database
 // GET to get messages from the database
 import { connectToDatabase } from "../../../../BACKEND/lib/mongodb";
+import User from "../../../../BACKEND/models/User";
 import Message from "../../../../BACKEND/models/Message";
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
 
 
 export async function POST(req) {
   await connectToDatabase();  // ensures db is connected
-  try {
-    const body = await req.json();
-    console.log("Received request body:", body); // for debugging
 
-    if (!body.message) {
-      throw new Error("Please enter a message.");
+  try {
+    const { senderId, receiverId, message } = await req.json();
+
+    if (!senderId || !receiverId || !message) {
+      return NextResponse.json({error: "missing something"}, {status: 400});
     }
 
-    const { sender, receiver, message } = body;
+    const sender = await User.findById(senderId);
+    const receiver = await User.findById(receiverId);
 
-    const newMessage = new Message({ sender, receiver, message });
+    // finds the sender/receiver in the database
+    if (!sender || !receiver) {
+      return NextResponse.kson({ error: "Sender or receiver not found"}, {status: 400});
+    }
+
+    // creates a new message
+    const newMessage = new Message({
+      sender: sender._id,
+      receiver: receiver._id,
+      message: message.trim(),
+    });
 
     // saves message to db
     await newMessage.save();
     console.log("Message saved successfully:", newMessage);
-
-    console.log(mongoose.connection.name); // prints the connected database name, debugging
-
 
     return NextResponse.json({ message: "Message sent", data: newMessage });
 
@@ -39,6 +47,11 @@ export async function POST(req) {
 
 export async function GET(req) {
   await connectToDatabase();
+
+  const { searchParams } = new URL(req.url);
+  const sender = searchParams.get("sender");
+  const receiver = searchParams.get("receiver");
+  
   try {
     const messages = await Message.find();
     return NextResponse.json(messages);

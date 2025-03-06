@@ -34,6 +34,7 @@ export default function Home() {
 
     const data = await response.json();
     console.log("Sign-in successful:", data); 
+    router.push("/chat")
   } catch (error) {
     console.log("Error sign in failed");
   }

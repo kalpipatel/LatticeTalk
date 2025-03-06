@@ -1,17 +1,67 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './chat.module.css';
 
-// ADDITIONS
 // for message fetching and state
-import useMessages from "../hooks/useMessages";
+//import useMessages from "../hooks/useMessages";
+
+interface Message {
+  sender: string;
+  receiver: string;
+  message: string;
+  _id?: string;
+  timestamp?: string;
+}
 
 const ChatPage = () => {
 
-  // current list of messages and a setter function to update them
-  const { messages, setMessages } = useMessages();
+  const [senderId, setSenderId] = useState('67c8ed1e13327778cdb114a1');
+  const [receiverId, setReceiverId] = useState('67c8eddcfa3b840f1c62ad4f');
   const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([]);
+
+
+  useEffect(() => {
+    const fetchUserIds = async () => {
+      try {
+        const response = await fetch('/api/users'); // API to get users
+        const result = await response.json();
+
+        if (result.users) {
+          const john = result.users.find((user: any) => user.username === "john");
+          const cam = result.users.find((user: any) => user.username === "cam");
+
+          if (john && cam) {
+            setSenderId(john._id);
+            setReceiverId(cam._id);
+          } else {
+            console.error("Users not found.");
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    fetchUserIds();
+  }, []);
+
+  // fetch messages
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const response = await fetch("/api/messages");
+        const result = await response.json();
+        if (result.data) {
+          setMessages(result.data); // Set fetched messages to state
+        }
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }
+    };
+    fetchMessages();
+  }, []);
 
   const sendMessage = async () => {
 
@@ -21,19 +71,20 @@ const ChatPage = () => {
     }
 
     const messageData = {
-      sender: "user1", // replace with actual sender
-      receiver: "user2", // replace with actual receiver
+      senderId, // replace with actual sender
+      receiverId, // replace with actual receiver
       message: message.trim(), // ensures no extra spaces
-  };
+    };
 
-  console.log("Sending message:", messageData); // for debugging
+    console.log("Sending message:", messageData); // for debugging
 
   // sends a new chat message to the message API 
     try {
       const response = await fetch("/api/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sender: "user1", receiver: "user2", message }),
+        body: JSON.stringify(messageData),
+        //body: JSON.stringify( { sender: "user1", receiver: "user2", ciphertextKem :, encryptedMsg : , signature :}),
     });
 
     // for debugging
@@ -44,12 +95,10 @@ const ChatPage = () => {
     const result = await response.json();
     console.log("Server response:", result);
 
-    if (result.data) {
-      setMessages((prevMessages) => [...prevMessages, result.data]); 
+    if (result.message) {
+      
+        console.log("Message sent successfully");  
     }
-
-    console.log("message sent!!!");
-
     setMessage(""); // Clear input field
     } catch (error) {
       console.error("Error sending message:", error);
@@ -85,11 +134,12 @@ const ChatPage = () => {
 
         {/* Chat Input */}
         <div className={styles.chatInputContainer}>
-          <input className={styles.chatInput} 
-          type="text" 
-          placeholder="Chatbar: type message here" 
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
+        <input
+            className={styles.chatInput}
+            type="text"
+            placeholder="Type your message"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
           />
 
           
