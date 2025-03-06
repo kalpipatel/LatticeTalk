@@ -37,17 +37,21 @@ export default function Home() {
   } catch (error) {
     console.log("Error sign in failed");
   }
-};
-
- const postSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+};const postSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
-  setError(null); 
+  setError(null); // Clear previous errors
 
-  const endpoint = `/api/users`;
-  const payload = { username, email, password };
+  // These values are for demonstration; they're also set by default on the backend if omitted.
+  const kyberPub = "1";  
+  const kyberPriv = "2"; 
+  const signPub = "3";   
+  const signPriv = "4";  
+
+  // Point directly to the backend running on port 3001
+  const endpoint = "http://localhost:3001/api/users";
+  const payload = { username, email, password, kyberPub, kyberPriv, signPub, signPriv };
 
   try {
-    
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
@@ -57,8 +61,6 @@ export default function Home() {
     });
 
     const data = await response.json();
-
-    
     if (!response.ok) {
       throw new Error(data.error || "Failed to sign up");
     }
@@ -69,6 +71,7 @@ export default function Home() {
     console.log("Error sign-up failed:", error);
   }
 };
+
 
 
 
