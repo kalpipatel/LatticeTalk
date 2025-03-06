@@ -3,12 +3,12 @@ import mongoose from "mongoose";
 // structure for how user data will be stored in the database
 const UserSchema = new mongoose.Schema({
   username: { type: String, unique: true, required: true },
-  email: { type: String, unique: true, required: true },
+  email: { type: String, unique: true, required: false },
   password: { type: String, required: true },  
-  kyberPub: { type: String, required: true },
-  kyberPriv: { type: String, required: true },
-  signPub: { type: String, required: true },
-  signPriv: { type: String, required: true },
+  kyberPub: { type: String, required: false },
+  kyberPriv: { type: String, required: false },
+  signPub: { type: String, required: false },
+  signPriv: { type: String, required: false },
 });
 
 // checks if the User already exists in mongoose.models, otherwise creates one
