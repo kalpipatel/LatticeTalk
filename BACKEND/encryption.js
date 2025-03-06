@@ -10,7 +10,7 @@ function generateKeys() {
     const [kyberPub, kyberPriv] = kyber.KeyGen768();
     const { privateKey: signPriv, publicKey: signPub } = dsa.generateKeyPair();
 
-    return { kyberPub, kyberPriv, signPriv, signPub };
+    return { kyberPub, kyberPriv, signPub, signPriv };
 }
 
 function encryptMessage(kyberPub, message) {

@@ -20,16 +20,17 @@ if (!MONGODB_URI) {
 let cached = global.mongoose || { conn: null, promise: null};
 
 export async function connectToDatabase() {
-    if (cached.conn) return cached.conn;
+  if (mongoose.connection.readyState >= 1) {
+    console.log("Already connected to MongoDB");
+    return;
+  }
 
-    if (!cached.promise) {
-        cached.promise = mongoose.connect(MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-    }).then((mongoose) => mongoose);
-    }
-
-    cached.conn = await cached.promise; // waits for connection
-    return cached.conn;
+  try {
+    await mongoose.connect(MONGODB_URI, {
+      dbName: "latticetalk"
+    });
+    console.log("Connected to MongoDB:", mongoose.connection.name);
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+  }
 }
-

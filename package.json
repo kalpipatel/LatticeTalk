@@ -1,5 +1,5 @@
 {
-  "name": "lattice-talk",
+  "name": "clear",
   "version": "0.1.0",
   "type": "module",
   "private": true,
@@ -11,6 +11,7 @@
     "start-socket": "node backend/server.js"
   },
   "dependencies": {
+    "@noble/hashes": "^1.7.1",
     "aes256": "^1.1.0",
     "cors": "^2.8.5",
     "crystals-kyber": "^5.1.0",
@@ -34,5 +35,9 @@
     "eslint": "^9",
     "eslint-config-next": "15.1.5",
     "typescript": "^5"
-  }
+  },
+  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC"
 }
