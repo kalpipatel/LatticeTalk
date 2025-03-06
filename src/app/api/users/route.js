@@ -69,7 +69,7 @@ export async function GET(req) {
     }
 
     
-    const existingUser = await User.findOne({ username });
+    const existingUser = await User.findOne({ username , password });
     if (existingUser) {
       return NextResponse.json({ message: "Signed In Successfully" }, { status: 201 });
     } else {
