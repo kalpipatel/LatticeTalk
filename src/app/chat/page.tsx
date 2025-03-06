@@ -19,7 +19,7 @@ const ChatPage = () => {
   const [senderId, setSenderId] = useState('67c8ed1e13327778cdb114a1');
   const [receiverId, setReceiverId] = useState('67c8eddcfa3b840f1c62ad4f');
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
 
   useEffect(() => {
@@ -51,7 +51,7 @@ const ChatPage = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch("/api/messages");
+        const response = await fetch(`/api/messages?sender=${senderId}&receiver=${receiverId}`);
         const result = await response.json();
         if (result.data) {
           setMessages(result.data); // Set fetched messages to state
@@ -61,7 +61,7 @@ const ChatPage = () => {
       }
     };
     fetchMessages();
-  }, []);
+  }, [senderId, receiverId]);
 
   const sendMessage = async () => {
 
@@ -98,8 +98,10 @@ const ChatPage = () => {
     if (result.message) {
       
         console.log("Message sent successfully");  
-    }
-    setMessage(""); // Clear input field
+        setMessages((prevMessages) => [...prevMessages, result.data as Message]);
+        setMessage(""); // Clear input field
+      }
+
     } catch (error) {
       console.error("Error sending message:", error);
     }
@@ -122,13 +124,21 @@ const ChatPage = () => {
         
         {/* Chat Messages */}
         <div className={styles.messages}>
+        {messages.map((msg) => (
+    <div
+      key={msg._id}
+      className={msg.sender === senderId ? styles.myMessage : styles.friendMessage}
+    >
+      {msg.message}
+    </div>
+  ))}
 
-          
+{/*           
          <div className={styles.friendMessage}>Friend msg</div>
           <div className={styles.friendMessage}>Friend msg</div>
           <div className={styles.friendMessage}>Friend msg</div>
           <div className={styles.myMessage}>My msg</div>
-          <div className={styles.myMessage}>My msg</div>
+          <div className={styles.myMessage}>My msg</div> */}
            
         </div>
 
