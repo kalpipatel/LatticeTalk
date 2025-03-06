@@ -52,3 +52,5 @@ export function testSigning() {
 };
 
 testSigning();
+
+//export {generateKeyPair, signMessage, verifySignature};
