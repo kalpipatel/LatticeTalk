@@ -52,7 +52,8 @@ export default function Home() {
   const signPriv = "4";  
 
   // Point directly to the backend running on port 3001
-  const endpoint = "http://localhost:3001/api/users";
+  //const endpoint = "http://localhost:3001/api/users";
+  const endpoint = "/api/users";
   const payload = { username, email, password, kyberPub, kyberPriv, signPub, signPriv };
 
   try {
@@ -61,7 +62,7 @@ export default function Home() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({username, email, password}),
     });
 
     const data = await response.json();
@@ -92,18 +93,15 @@ export default function Home() {
         <div> 
           {
             isSignIn ? (
-              <button onClick={() => setSignIn(!isSignIn)}> Sign Up ? </button>
+              <button onClick={() => setSignIn(false)}> Sign Up </button>
             ) : (
-              <button onClick={() => setSignIn(!isSignIn)}> Sign In ? </button>
+              <button onClick={() => setSignIn(true)}> Sign In </button>
             )
           }
         </div>
         <div className={styles["login-box"]}>
           {
             isSignIn ? (
-              
-                
-                
               <form onSubmit={getSubmit}>
               <h2 className={styles["login-title"]}>Login</h2>
               <input 
@@ -127,7 +125,7 @@ export default function Home() {
                 
             ) : (
                 <form onSubmit={postSubmit}>
-              <h2 className={styles["login-title"]}>Sign Up</h2>
+                <h2 className={styles["login-title"]}>Sign Up</h2>
               
                   <input 
               className={styles["login-input"]} 

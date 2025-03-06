@@ -10,14 +10,7 @@ export async function POST(req) {
 
     await connectToDatabase();
 
-    // Destructure the incoming data. Use "let" so we can modify if needed.
-    let { username, email, password, kyberPriv, kyberPub, signPriv, signPub } = requestData;
-    
-    // If keys are not provided in the request, set default values.
-    if (!kyberPub) kyberPub = "1";
-    if (!kyberPriv) kyberPriv = "2";
-    if (!signPub) signPub = "3";
-    if (!signPriv) signPriv = "4";
+    const { username, email, password } = requestData;
 
     // Validate required fields
     if (!username || !email || !password) {
@@ -28,20 +21,37 @@ export async function POST(req) {
     // Check if the user already exists
     const existingUser = await User.findOne({ email });
     console.log("Existing user found:", existingUser);
-
     if (existingUser) {
       return NextResponse.json({ error: "User already exists" }, { status: 400 });
     }
+
+    // Destructure the incoming data. Use "let" so we can modify if needed.
+    //let { username, email, password, kyberPriv, kyberPub, signPriv, signPub } = requestData;
+    
+    // If keys are not provided in the request, set default values.
+    /*if (!kyberPub) kyberPub = "1";
+    if (!kyberPriv) kyberPriv = "2";
+    if (!signPub) signPub = "3";
+    if (!signPriv) signPriv = "4";*/
+
+    // generate key pairs before storing
+    const {kyberPub, kyberPriv, signPub, signPriv} = generateKeys();  
+
+    // Convert to Base64
+    const kyberPub64 = Buffer.from(kyberPub).toString('base64');
+    const kyberPriv64 = Buffer.from(kyberPriv).toString('base64');
+    const signPub64 = Buffer.from(signPub).toString('base64');
+    const signPriv64 = Buffer.from(signPriv).toString('base64');
 
     // Create and save the new user
     const newUser = new User({
       username,
       email,
       password,
-      kyberPub,
-      kyberPriv,
-      signPub,
-      signPriv
+      kyberPub : kyberPub64,
+      kyberPriv : kyberPriv64,
+      signPub : signPub64,
+      signPriv : signPriv64
     });
 
     await newUser.save();
