@@ -53,4 +53,4 @@ export function testSigning() {
 
 testSigning();
 
-export {generateKeyPair, signMessage, verifySignature};
+//export {generateKeyPair, signMessage, verifySignature};
