@@ -1,11 +1,9 @@
-"use client"
+"use client";
 
 import React, { useState, useEffect } from 'react';
 import styles from './chat.module.css';
 
-// for message fetching and state
-//import useMessages from "../hooks/useMessages";
-
+// Define interfaces
 interface Message {
   sender: string;
   receiver: string;
@@ -14,13 +12,29 @@ interface Message {
   timestamp?: string;
 }
 
-const ChatPage = () => {
+interface Chat {
+  _id: string;
+  user1: string;
+  user2: string;
+  latestMessage: string;
+  updatedAt: Date;
+}
 
+interface User {
+  username: string;
+}
+
+// Define props for ChatList component
+interface ChatListProps {
+  senderId: string;
+  receiverId: string;
+}
+
+const ChatPage = () => {
   const [senderId, setSenderId] = useState('67c8ed1e13327778cdb114a1');
   const [receiverId, setReceiverId] = useState('67c8eddcfa3b840f1c62ad4f');
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
-
 
   useEffect(() => {
     const fetchUserIds = async () => {
@@ -47,14 +61,14 @@ const ChatPage = () => {
     fetchUserIds();
   }, []);
 
-  // fetch messages
+  // Fetch messages when senderId or receiverId changes
   useEffect(() => {
     const fetchMessages = async () => {
       try {
         const response = await fetch(`/api/messages?sender=${senderId}&receiver=${receiverId}`);
         const result = await response.json();
         if (result.data) {
-          setMessages(result.data); // Set fetched messages to state
+          setMessages(result.data);
         }
       } catch (error) {
         console.error("Error fetching messages:", error);
@@ -63,59 +77,95 @@ const ChatPage = () => {
     fetchMessages();
   }, [senderId, receiverId]);
 
-  const sendMessage = async () => {
+  // ChatList component with proper prop types
+  const ChatList: React.FC<ChatListProps> = ({ senderId, receiverId }) => {
+    const [chats, setChats] = useState<Chat[]>([]);
 
+    useEffect(() => {
+      if (!senderId) return; // ensure senderId is available before fetching
+
+      const fetchChats = async () => {
+        try {
+          const response = await fetch(`/api/chats?userId=${senderId}`);
+          const result = await response.json();
+          setChats(result.chats || []);
+        } catch (error) {
+          console.error("Error fetching chats:", error);
+        }
+      };
+
+      fetchChats();
+    }, [senderId]);
+
+    // In this example, we are not filtering the chats.
+    const filteredChats = chats;
+
+    return (
+      <div className="chat-list space-y-2 p-4">
+        {filteredChats.map((chat) => (
+          <div key={chat._id} className="flex items-center p-2 border rounded-lg shadow-md bg-white">
+            <div className="flex-1">
+              <h3 className="font-semibold text-gray-800">{chat.user1}</h3>
+              <p className="text-sm text-gray-500 truncate">{chat.latestMessage}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const sendMessage = async () => {
     if (!message.trim()) {
       console.error("Message is empty. Not sending.");
       return;
     }
 
     const messageData = {
-      senderId, // replace with actual sender
-      receiverId, // replace with actual receiver
-      message: message.trim(), // ensures no extra spaces
+      senderId,
+      receiverId,
+      message: message.trim(),
     };
 
-    console.log("Sending message:", messageData); // for debugging
+    console.log("Sending message:", messageData);
 
-  // sends a new chat message to the message API 
     try {
       const response = await fetch("/api/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(messageData),
-        //body: JSON.stringify( { sender: "user1", receiver: "user2", ciphertextKem :, encryptedMsg : , signature :}),
-    });
+      });
 
-    // for debugging
-    if (!response.ok) {
-      throw new Error(`ERROR: ${response.status}`);
-    }
+      if (!response.ok) {
+        throw new Error(`ERROR: ${response.status}`);
+      }
 
-    const result = await response.json();
-    console.log("Server response:", result);
+      const result = await response.json();
+      console.log("Server response:", result);
 
-    if (result.message) {
-      
-        console.log("Message sent successfully");  
+      if (result.message) {
+        console.log("Message sent successfully");
         setMessages((prevMessages) => [...prevMessages, result.data as Message]);
         setMessage(""); // Clear input field
       }
-
     } catch (error) {
       console.error("Error sending message:", error);
     }
-      
   };
 
+  
 
   return (
     <div className={styles.chatContainer}>
       {/* Sidebar */}
       <div className={styles.sidebar}>
-        <div className={styles.sidebarItem}>Search</div>
+        <input placeholder="Search" className={styles.sidebarItem} />
+        
         <div className={styles.sidebarItem}>Contacts</div>
         <div className={styles.sidebarItem}>Settings</div>
+        <div className={styles.sideChats}>
+          {/* Optionally render the ChatList component */}
+          <ChatList senderId={senderId} receiverId={receiverId} />
+        </div>
       </div>
 
       {/* Main Chat Section */}
@@ -124,35 +174,25 @@ const ChatPage = () => {
         
         {/* Chat Messages */}
         <div className={styles.messages}>
-        {messages.map((msg) => (
-    <div
-      key={msg._id}
-      className={msg.sender === senderId ? styles.myMessage : styles.friendMessage}
-    >
-      {msg.message}
-    </div>
-  ))}
-
-{/*           
-         <div className={styles.friendMessage}>Friend msg</div>
-          <div className={styles.friendMessage}>Friend msg</div>
-          <div className={styles.friendMessage}>Friend msg</div>
-          <div className={styles.myMessage}>My msg</div>
-          <div className={styles.myMessage}>My msg</div> */}
-           
+          {messages.map((msg) => (
+            <div
+              key={msg._id}
+              className={msg.sender === senderId ? styles.myMessage : styles.friendMessage}
+            >
+              {msg.message}
+            </div>
+          ))}
         </div>
 
         {/* Chat Input */}
         <div className={styles.chatInputContainer}>
-        <input
+          <input
             className={styles.chatInput}
             type="text"
             placeholder="Type your message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
-
-          
           <button className={styles.sendButton} onClick={sendMessage}>➤</button>
         </div>
       </div>
