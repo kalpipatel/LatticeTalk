@@ -71,7 +71,7 @@ nav .navlink {
 }
 
 nav .navlink:hover {
-  color: #0070f3; /* Hover effect */
+  color: #BB96EE ; /* Hover effect */
 }
 
 main {
@@ -84,3 +84,16 @@ main {
     color-scheme: dark;
   }
 }
+
+@font-face {
+  font-family: "ZonaPro";
+  src: url("/fonts/ZonaPro-Thin.woff2") format("woff2");
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "ZonaPro";
+  src: url("/fonts/ZonaPro-Bold.woff2") format("woff2");
+  font-style: normal;
+}
+

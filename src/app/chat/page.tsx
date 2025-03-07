@@ -21,6 +21,11 @@ const ChatPage = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
 
+  //Search Button
+  const [searchVisible, setSearchVisible] = useState(false); 
+  const [searchInput, setSearchInput] = useState<string>(""); 
+  const [savedSearch, setSavedSearch] = useState(""); //Searched user variable
+
 
   useEffect(() => {
     const fetchUserIds = async () => {
@@ -111,11 +116,39 @@ const ChatPage = () => {
 
   return (
     <div className={styles.chatContainer}>
+      
       {/* Sidebar */}
       <div className={styles.sidebar}>
-        <div className={styles.sidebarItem}>Search</div>
-        <div className={styles.sidebarItem}>Contacts</div>
+        <div 
+          className={styles.sidebarItem} 
+          onClick={() => setSearchVisible(true)}
+        >
+          {searchVisible ? (
+            <input
+              type="text"
+              placeholder="Search User"
+              className={styles.searchInput}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  console.log("Enter pressed!!! Saving search:", searchInput); 
+                  setSavedSearch(searchInput); 
+                  setSearchInput(""); 
+                  setSearchVisible(false); 
+                }
+              }}
+              autoFocus
+            /> 
+          ) : (
+            "Search User"
+          )}
+        </div>
+        
+        {/* Settings */}
         <div className={styles.sidebarItem}>Settings</div>
+        
+
       </div>
 
       {/* Main Chat Section */}
