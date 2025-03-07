@@ -1,35 +1,56 @@
+@font-face {
+  font-family: "ZonaPro";
+  src: url("/fonts/ZonaPro-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* Apply bold ZonaPro font to the entire navbar */
 .navbar {
-    width: 100%;
-    padding: 16px 24px; /* Padding for top and bottom of navbar */
-    position: relative;
-    font-family: "ZonaPro", sans-serif;
-  }
-  
-  .logo {
-    font-size: 32px;
-    font-weight: bold;
-    position: absolute;
-    left: 24px;
-    top: 24px;
-    cursor: pointer;
-  }
-  
-  .navlinks {
-    position: absolute;
-    top: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 32px; /* Space between links */
-  }
-  
-  .navlink {
-    font-size: 18px;
-    cursor: pointer;
-    color: #171717;
-  }
-  
-  .navlink:hover {
-    color: #0070f3; /* Change color on hover */
-  }
-  
+  width: 100%;
+  padding: 16px 24px; /* Padding for top and bottom of navbar */
+  position: relative;
+  font-family: "ZonaPro", sans-serif;
+  font-weight: 700;
+  background-color: #ffffff;
+  height: 70px;
+
+}
+
+/* Ensure the logo also has the bold font */
+.logo {
+  height: 100px;
+  font-size: 32px;
+  font-weight: 700;
+  position: absolute;
+  left: 50px;
+  top: -15px;
+  cursor: pointer;
+  font-family: "ZonaPro", sans-serif;
+}
+
+/* Ensure nav links use bold font */
+.navlinks {
+  position: absolute;
+  top: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 32px; /* Space between links */
+}
+
+.navlink {
+  font-size: 25px;
+  cursor: pointer;
+  color: #171717;
+  font-family: "ZonaPro", sans-serif;
+  font-weight: 700;
+}
+
+.navlink:hover {
+  color: #BB96EE ; /* Change color on hover */
+}
+
+.navlink:active {
+  color: #9FFEDE;
+}

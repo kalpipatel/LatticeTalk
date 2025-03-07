@@ -17,7 +17,7 @@ export const metadata = {
   title: "LatticeTalk", 
   description: "A platform for seamless communication", 
   icons: {
-    icon: "/favicon.ico", 
+    icon: "/images/favicon.png", 
   },
 };
 

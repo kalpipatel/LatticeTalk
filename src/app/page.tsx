@@ -22,7 +22,6 @@ export default function Home() {
 
   const endpoint = `/api/users?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
 
-
   try {
     const response = await fetch(endpoint, {
       method: "GET",
@@ -90,15 +89,16 @@ export default function Home() {
       {/* Login box */}
       <div className={styles["login-container"]}>
         <div className={styles["login-shadow"]}></div>
-        <div> 
-          {
-            isSignIn ? (
-              <button onClick={() => setSignIn(false)}> Sign Up </button>
-            ) : (
-              <button onClick={() => setSignIn(true)}> Sign In </button>
-            )
-          }
-        </div>
+       <div>
+  {
+    isSignIn ? (
+      <button className={styles['toggle-button']} onClick={() => setSignIn(false)}> Sign Up </button>
+    ) : (
+      <button className={styles['toggle-button']} onClick={() => setSignIn(true)}> Sign In </button>
+    )
+  }
+</div>
+
         <div className={styles["login-box"]}>
           {
             isSignIn ? (
@@ -120,7 +120,7 @@ export default function Home() {
               required 
               placeholder="Password" 
               />
-            <button className={styles["login-input"]}>Submit</button>
+            <button className={styles["toggle-button"]}>Submit</button>
                 </form>
                 
             ) : (
@@ -151,7 +151,7 @@ export default function Home() {
               required 
               placeholder="Password" 
               />
-            <button className={styles["login-input"]}>Submit</button>
+            <button className={styles["toggle-button"]}>Submit</button>
             </form>
             )
           }
@@ -161,7 +161,7 @@ export default function Home() {
       {/* Navigation link to the chat page */}
       <div className={styles["chat-link-container"]}>
         <Link href="/chat">
-          <button className={styles["chat-button"]}>Go to Chat (Temp)</button>
+          <button className={styles['toggle-button']}>Go to Chat (Temp)</button>
         </Link>
       </div>
     </div>

@@ -1,3 +1,5 @@
+
+
 import Link from "next/link";
 import styles from "./Navbar.module.css";
 
@@ -7,7 +9,7 @@ export default function Navbar() {
     <nav className={styles.navbar}>
       {/* LOGO - Top Left */}
       <Link href="/">
-        <span className={styles.logo}>LOGO</span>
+        <img className={styles.logo} src="/images/logo.png" alt="Logo" />
       </Link>
 
       {/* Centered Navigation Links */}
@@ -22,3 +24,4 @@ export default function Navbar() {
     </nav>
   );
 }
+
