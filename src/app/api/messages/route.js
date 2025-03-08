@@ -21,16 +21,17 @@ export async function POST(req) {
 
  
   try {
-    const { senderId, receiverId, message } = await req.json();
+    const { senderUsername, receiverUsername, message } = await req.json();
 
     console.log("3 we got here!!");
 
-    if (!senderId || !receiverId || !message) {
+    if (!senderUsername || !receiverUsername || !message) {
       return NextResponse.json({error: "missing something"}, {status: 400});
     }
 
-    const sender = await User.findById(senderId);
-    const receiver = await User.findById(receiverId);
+    const sender = await User.findOne({ username: senderUsername });
+    const receiver = await User.findOne({ username: receiverUsername });
+
 
     console.log("4 we got here!!");
 
@@ -42,13 +43,13 @@ export async function POST(req) {
     console.log("5 we got here!!");
 
 
-    let chat = await Chat.findOne({participants: { $all: [senderId, receiverId] } });
+    let chat = await Chat.findOne({participants: { $all: [senderUsername, receiverUsername] } });
     console.log("6 we got here!!");
 
     if (!chat) {
 
       chat = new Chat({
-        participants: [senderId, receiverId],
+        participants: [senderUsername, receiverUsername],
         messages: [],
         // edit the keys
         User1KyberPub: 1,
@@ -113,15 +114,15 @@ export async function GET(req) {
   await connectToDatabase();
 
   const { searchParams } = new URL(req.url);
-  const senderId = searchParams.get("sender");
-  const receiverId = searchParams.get("receiver");
+  const senderUsername = searchParams.get("sender");
+  const receiverUsername = searchParams.get("receiver");
 
-  if (!senderId || !receiverId) {
-    return NextResponse.json({ error: "Missing sender or receiver ID"})
+  if (!senderUsername || !receiverUsername) {
+    return NextResponse.json({ error: "Missing sender or receiver name"})
   }
 
   try {
-    const chat = await Chat.findOne({ participants: { $all: [senderId, receiverId]}});
+    const chat = await Chat.findOne({ participants: { $all: [senderUsername, receiverUsername]}});
 
     if (!chat) {
       return NextResponse.json({error: "chat not found"}, {status: 404});

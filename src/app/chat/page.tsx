@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { io, Socket } from 'socket.io-client';
 import styles from './chat.module.css';
+import { useUser } from '@/context/userContext';
 
 interface Message {
   sender: string;
@@ -19,44 +20,32 @@ const socket: Socket = io("http://localhost:3001", {
 });
 
 const ChatPage = () => {
-  const [senderId, setSenderId] = useState('67c8ed1e13327778cdb114a1');
-  const [receiverId, setReceiverId] = useState('67c8eddcfa3b840f1c62ad4f');
-  const [chatId, setChatId] = useState("67ca2ef91ef56b74041ca020");
+
+  const { user } = useUser();
+
+  if (!user) {
+    return <div>Please log in first. </div>;
+  }
+
+  const senderName = user.username;
+  const receiverName = "cam"; // TEJAA FIND THE RECIVER NAMEEEEEEEE and assign it to this variable
+
+  const [chatId, setChatId] = useState("67ca2ef91ef56b74041ca020");  // FIND THE CHAT ID between those two useers^^
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+
+  const [searchQuery, setSearchQuery] = useState(""); // Search query state
+  const [filteredUsers, setFilteredUsers] = useState<[]>([]); // Filtered users based on search query
+
 
   //Search Button
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchInput, setSearchInput] = useState<string>("");
   const [savedSearch, setSavedSearch] = useState(""); //Searched user variable
 
-  useEffect(() => {
-    const fetchUserIds = async () => {
-      try {
-        const response = await fetch('/api/users'); // API to get users
-        const result = await response.json();
-
-        if (result.users) {
-          const john = result.users.find((user: any) => user.username === "john");
-          const cam = result.users.find((user: any) => user.username === "cam");
-
-          if (john && cam) {
-            setSenderId(john._id);
-            setReceiverId(cam._id);
-          } else {
-            console.error("Users not found.");
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
-    };
-
-    fetchUserIds();
-  }, []);
 
   useEffect(() => {
-    socket.emit("register", senderId);
+    socket.emit("register", senderName);
     socket.emit("joinChat", chatId);
 
     socket.on("receiveMessage", (newMessage: Message) => {
@@ -66,12 +55,12 @@ const ChatPage = () => {
     return () => {
       socket.off("receiveMessage");
     };
-  }, [senderId, chatId]);
+  }, [senderName, chatId]);
 
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/messages/${chatId}`);
+        const response = await fetch(`/api/messages?sender=${senderName}&receiver=${receiverName}`);
         const result = await response.json();
         if (result) {
           setMessages(result);
@@ -89,8 +78,8 @@ const ChatPage = () => {
     }
 
     const messageData = {
-      senderId,
-      receiverId,
+      senderName,
+      receiverName,
       message: message.trim(),
       chatId,
       encryptedMsg: "",
@@ -105,7 +94,7 @@ const ChatPage = () => {
 
   useEffect(() => {
     socket.on("receiveMessage", (newMessage: Message) => {
-      console.log("📩 New message received:", newMessage);
+      console.log("New message received:", newMessage);
 
       // Prevent duplicate messages
       setMessages((prevMessages) => {
@@ -120,6 +109,35 @@ const ChatPage = () => {
       socket.off("receiveMessage"); // Cleanup to prevent duplicate listeners
     };
   }, []);
+
+  useEffect(() => {
+    const fetchFilteredUsers = async () => {
+      try {
+        // Fetch from the backend running on port 3001
+        const response = await fetch(`http://localhost:3001/search?query=${searchQuery}`);
+        const result = await response.json();
+
+        if (response.ok) {
+          setFilteredUsers(result.users); // Update filtered users based on the query
+        } else {
+          setFilteredUsers([]); // Clear users if no match
+        }
+      } catch (error) {
+        // Log error and check for specific error
+        console.error("Error fetching users:", error);
+        if (error instanceof Error && error.message.includes("404")) {
+          // If error contains 404, show a custom message
+          console.log("User not found");
+        }
+      }
+    };
+
+    if (searchQuery) {
+      fetchFilteredUsers();
+    } else {
+      setFilteredUsers([]); // Clear users if search query is empty
+    }
+  }, [searchQuery]); // Re-run effect every time the searchQuery changes
 
 
   return (
@@ -168,7 +186,7 @@ const ChatPage = () => {
           {messages.map((msg, index) => (
             <div
               key={msg._id || index}
-              className={msg.sender === senderId ? styles.myMessage : styles.friendMessage}
+              className={msg.sender === senderName ? styles.myMessage : styles.friendMessage}
             >
               {msg.message}
             </div>

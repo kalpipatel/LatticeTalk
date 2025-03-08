@@ -4,13 +4,13 @@
 import mongoose from "mongoose";
 
 const MessageSchema = new mongoose.Schema({
-    sender: { type: String, required: true },
-    receiver: { type: String, required: true },
-    message: { type: String, required: true },  // ✅ Ensure this field is `message`, NOT `content`
-    encryptedMsg: { type: String, default: "" },
-    ciphertextKem: { type: String, default: "" },
-    signature: { type: String, default: "" },
-    timestamp: { type: Date, default: Date.now }
+  sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  receiver: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  content: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now },
 });
 
-export default mongoose.model("Message", MessageSchema);
+// Check if the model already exists
+const Message = mongoose.models.Message || mongoose.model('Message', MessageSchema);
+
+export default Message;

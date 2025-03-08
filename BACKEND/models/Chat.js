@@ -8,7 +8,7 @@ const MessageSchema = new mongoose.Schema({
 });
 
 const ChatSchema = new mongoose.Schema({
-  participants: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Users in chat
+  participants: [{ type: String }], // Users in chat
   messages: [MessageSchema], // Store messages in order with sender and timestamp
   lastMessage: { type: mongoose.Schema.Types.ObjectId, ref: "Message" }, // Last message in chat
   User1KyberPub: { type: String }, // User1's Kyber public key

@@ -1,37 +1,38 @@
 import { connectToDatabase } from "../../../../BACKEND/lib/mongodb";
-import ChatSchema from "../../models/Chat";
-import User from "../../../../BACKEDN/models/User";
+import User from "../../../../BACKEND/models/User";
+import Chat from "../../../../BACKEND/models/Chat";
 import { NextResponse } from "next/server";
 
 // returns the chat between two users
-export default async function POST(req) {
+export async function POST(req) {
     await connectToDatabase();
 
     try {
-        const { senderId, receiverId, user1Keys, user2Keys } = await req.json();
+        const { senderUsername, receiverUsername, user1Keys, user2Keys } = await req.json();
 
-        if (!senderId || !receiverId) {
+        if (!senderUsername || !receiverUsername) {
             return NextResponse.json({ error: "Sender and receiver IDs are required" }, { status: 400 });
         }
-
-    const sender = await User.findById(senderId);
-    const receiver = await User.findById(receiverId);
+      
+    //find sender using username
+    const sender = await User.findOne({ username: senderUsername });
+    const receiver = await User.findOne({ username: receiverUsername });
     if (!sender || !receiver) {
       return NextResponse.json({ error: "Sender or receiver not found" }, { status: 400 });
     }
      
     // checks if chat already exists
-    let chat = await Chat.findOne({ participants: { $all: [senderId, receiverId] } });
+    let chat = await Chat.findOne({ participants: { $all: [senderUsername, receiverUsername] } });
 
     // creates new chat if doesn't exist
     if (!chat) {
         chat = new Chat({
-          participants: [senderId, receiverId],
+          participants: [senderUsername, receiverUsername],
           messages: [],
-          User1KyberPub: user1Keys.kyber,
-          User2KyberPub: user2Keys.kyber,
-          User1SignPub: user1Keys.sign,
-          User2SignPub: user2Keys.sign,
+          User1KyberPub: user1Keys,
+          User2KyberPub: user2Keys,
+          User1SignPub: user1Keys,
+          User2SignPub: user2Keys,
         });
   
         await chat.save();
@@ -52,15 +53,17 @@ export async function GET(req) {
   
     try {
       const { searchParams } = new URL(req.url);
-      const userId = searchParams.get("userId");
+      const username = searchParams.get("username");
   
-      if (!userId) {
+      if (!username) {
         return NextResponse.json({ error: "User ID is required" }, { status: 400 });
       }
   
       // Find all chats where the user is a participant
-      const chats = await Chat.find({ participants: userId }).populate("participants").populate("lastMessage");
-  
+      const chats = await Chat.find({ participants: username })
+      .populate("participants")
+      .populate("lastMessage");
+
       return NextResponse.json({ chats });
   
     } catch (error) {
