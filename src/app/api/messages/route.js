@@ -5,13 +5,25 @@ import { connectToDatabase } from "../../../../BACKEND/lib/mongodb";
 import User from "../../../../BACKEND/models/User";
 import Message from "../../../../BACKEND/models/Message";
 import { NextResponse } from "next/server";
+import Chat from "../../../../BACKEND/models/Chat";
+
+// const [senderId, setSenderId] = useState('67c8ed1e13327778cdb114a1');
+// const [receiverId, setReceiverId] = useState('67c8eddcfa3b840f1c62ad4f');
 
 
 export async function POST(req) {
+
+  console.log("1 we got here!!");
+
   await connectToDatabase();  // ensures db is connected
 
+  console.log("2 we got here!!");
+
+ 
   try {
     const { senderId, receiverId, message } = await req.json();
+
+    console.log("3 we got here!!");
 
     if (!senderId || !receiverId || !message) {
       return NextResponse.json({error: "missing something"}, {status: 400});
@@ -20,21 +32,73 @@ export async function POST(req) {
     const sender = await User.findById(senderId);
     const receiver = await User.findById(receiverId);
 
+    console.log("4 we got here!!");
+
     // finds the sender/receiver in the database
     if (!sender || !receiver) {
-      return NextResponse.kson({ error: "Sender or receiver not found"}, {status: 400});
+      return NextResponse.json({ error: "Sender or receiver not found"}, {status: 400});
     }
 
+    console.log("5 we got here!!");
+
+
+    let chat = await Chat.findOne({participants: { $all: [senderId, receiverId] } });
+    console.log("6 we got here!!");
+
+    if (!chat) {
+
+      chat = new Chat({
+        participants: [senderId, receiverId],
+        messages: [],
+        // edit the keys
+        User1KyberPub: 1,
+        User2KyberPub: 2,
+        User1SignPub: 3,
+        User2SignPub: 4,
+      });
+
+      await chat.save();
+      console.log("7 we got here!! and CHAT was created");
+      //return NextResponse.json({error: "Chat does not exist" }, { status: 400});
+    }
+
+  
     // creates a new message
-    const newMessage = new Message({
+    const newMessage = {
       sender: sender._id,
       receiver: receiver._id,
-      message: message.trim(),
-    });
+      content: message.trim(),
+      timestamp: new Date(),
+    };
+
+    console.log("8 we got here!!");
+
+    console.log("Before pushing the new message:", chat.messages); // Print current messages array
+
+    console.log("New message being added:", newMessage); // Print the new message object
+
+
+    chat.messages.push(newMessage);
+
+    console.log("After pushing the new message:", chat.messages); // Print the updated messages array
+
+    console.log("9 we got here!!");
+
 
     // saves message to db
-    await newMessage.save();
+    try {
+      await chat.save();
+    } catch (error) {
+      console.error("error saving chat:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+
+    }
+
+    console.log("10 we got here!!");
+
     console.log("Message saved successfully:", newMessage);
+
+    console.log("11 we got here!!");
 
     return NextResponse.json({ message: "Message sent", data: newMessage });
 
@@ -49,13 +113,23 @@ export async function GET(req) {
   await connectToDatabase();
 
   const { searchParams } = new URL(req.url);
-  const sender = searchParams.get("sender");
-  const receiver = searchParams.get("receiver");
-  
+  const senderId = searchParams.get("sender");
+  const receiverId = searchParams.get("receiver");
+
+  if (!senderId || !receiverId) {
+    return NextResponse.json({ error: "Missing sender or receiver ID"})
+  }
+
   try {
-    const messages = await Message.find();
-    return NextResponse.json(messages);
+    const chat = await Chat.findOne({ participants: { $all: [senderId, receiverId]}});
+
+    if (!chat) {
+      return NextResponse.json({error: "chat not found"}, {status: 404});
+    }
+
+    return NextResponse.json({data: chat.messages});
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("Error in GET /api/messages", error);
+    return NextResponse.json({ error: error.message}, {status: 500})
   }
 }

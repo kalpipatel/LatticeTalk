@@ -75,20 +75,20 @@ const ChatPage = () => {
       return;
     }
 
-    const messageData = {
-      senderId, // replace with actual sender
-      receiverId, // replace with actual receiver
-      message: message.trim(), // ensures no extra spaces
-    };
+    // const messageData = {
+    //   senderId, // replace with actual sender
+    //   receiverId, // replace with actual receiver
+    //   message: message.trim(), // ensures no extra spaces
+    // };
 
-    console.log("Sending message:", messageData); // for debugging
+    // console.log("Sending message:", messageData); // for debugging
 
   // sends a new chat message to the message API 
     try {
       const response = await fetch("/api/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(messageData),
+        body: JSON.stringify({ senderId, receiverId, message}),
         //body: JSON.stringify( { sender: "user1", receiver: "user2", ciphertextKem :, encryptedMsg : , signature :}),
     });
 
@@ -159,19 +159,12 @@ const ChatPage = () => {
         <div className={styles.messages}>
         {messages.map((msg) => (
     <div
-      key={msg._id}
+      key={msg.timestamp}
       className={msg.sender === senderId ? styles.myMessage : styles.friendMessage}
     >
       {msg.message}
     </div>
   ))}
-
-{/*           
-         <div className={styles.friendMessage}>Friend msg</div>
-          <div className={styles.friendMessage}>Friend msg</div>
-          <div className={styles.friendMessage}>Friend msg</div>
-          <div className={styles.myMessage}>My msg</div>
-          <div className={styles.myMessage}>My msg</div> */}
            
         </div>
 

@@ -46,6 +46,7 @@ export default async function POST(req) {
 }
 
 // gets all the chats for a particular user (use to load chats?)
+// use this in the sidebar?
 export async function GET(req) {
     await connectToDatabase();
   
