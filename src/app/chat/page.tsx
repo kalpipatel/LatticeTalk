@@ -46,11 +46,13 @@ const ChatPage = () => {
 
   useEffect(() => {
     socket.emit("register", senderName);
-    socket.emit("joinChat", chatId);
+    if (chatId) {
+      socket.emit("joinChat", chatId);
 
-    socket.on("receiveMessage", (newMessage: Message) => {
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-    });
+      socket.on("receiveMessage", (newMessage: Message) => {
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
+      });
+    }
 
     return () => {
       socket.off("receiveMessage");
@@ -62,15 +64,18 @@ const ChatPage = () => {
       try {
         const response = await fetch(`/api/messages?sender=${senderName}&receiver=${receiverName}`);
         const result = await response.json();
-        if (result) {
-          setMessages(result);
+        console.log(result); // Log the API response
+
+        if (Array.isArray(result.data)) {
+          setMessages(result.data); // Only set state if result is an array
+        } else {
+          console.error("Expected an array of messages, but got:", result);
         }
       } catch (error) {
         console.error("Error fetching messages:", error);
       }
     };
-    fetchMessages();
-  }, [chatId]);
+  }, [chatId, receiverName]);
 
   const sendMessage = async () => {
     if (!message.trim()) {
@@ -110,34 +115,34 @@ const ChatPage = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const fetchFilteredUsers = async () => {
-      try {
-        // Fetch from the backend running on port 3001
-        const response = await fetch(`http://localhost:3001/search?query=${searchQuery}`);
-        const result = await response.json();
+  // useEffect(() => {
+  //   const fetchFilteredUsers = async () => {
+  //     try {
+  //       // Fetch from the backend running on port 3001
+  //       const response = await fetch(`http://localhost:3001/search?query=${searchQuery}`);
+  //       const result = await response.json();
 
-        if (response.ok) {
-          setFilteredUsers(result.users); // Update filtered users based on the query
-        } else {
-          setFilteredUsers([]); // Clear users if no match
-        }
-      } catch (error) {
-        // Log error and check for specific error
-        console.error("Error fetching users:", error);
-        if (error instanceof Error && error.message.includes("404")) {
-          // If error contains 404, show a custom message
-          console.log("User not found");
-        }
-      }
-    };
+  //       if (response.ok) {
+  //         setFilteredUsers(result.users); // Update filtered users based on the query
+  //       } else {
+  //         setFilteredUsers([]); // Clear users if no match
+  //       }
+  //     } catch (error) {
+  //       // Log error and check for specific error
+  //       console.error("Error fetching users:", error);
+  //       if (error instanceof Error && error.message.includes("404")) {
+  //         // If error contains 404, show a custom message
+  //         console.log("User not found");
+  //       }
+  //     }
+  //   };
 
-    if (searchQuery) {
-      fetchFilteredUsers();
-    } else {
-      setFilteredUsers([]); // Clear users if search query is empty
-    }
-  }, [searchQuery]); // Re-run effect every time the searchQuery changes
+  //   if (searchQuery) {
+  //     fetchFilteredUsers();
+  //   } else {
+  //     setFilteredUsers([]); // Clear users if search query is empty
+  //   }
+  // }, [searchQuery]); // Re-run effect every time the searchQuery changes
 
 
   return (
@@ -183,14 +188,18 @@ const ChatPage = () => {
 
         {/* Chat Messages */}
         <div className={styles.messages}>
-          {messages.map((msg, index) => (
-            <div
-              key={msg._id || index}
-              className={msg.sender === senderName ? styles.myMessage : styles.friendMessage}
-            >
-              {msg.message}
-            </div>
-          ))}
+          {Array.isArray(messages) ? (
+            messages.map((msg, index) => (
+              <div
+                key={msg._id || index}
+                className={msg.sender === senderName ? styles.myMessage : styles.friendMessage}
+              >
+                {msg.message}
+              </div>
+            ))
+          ) : (
+            <div>No messages found</div>
+          )}
         </div>
         <div className={styles.chatInputContainer}>
           <input className={styles.chatInput} type="text" placeholder="Type your message" value={message} onChange={(e) => setMessage(e.target.value)} />
