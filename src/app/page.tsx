@@ -8,8 +8,10 @@ import React from 'react';
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { UserProvider, useUser } from "../context/userContext";
 
 export default function Home() {
+  const { setUser } = useUser();
   const [username, setUsername] = useState("");
   const [isSignIn, setSignIn] = useState(true);
   const [email, setEmail] = useState("");
@@ -33,7 +35,17 @@ export default function Home() {
 
     const data = await response.json();
     router.push("/chat");
-    console.log("Sign-in successful:", data); 
+    console.log("Log-in successful:", data); 
+
+    // store user in react context
+    setUser({
+      username : data.username,
+      email : data.email,
+      password : data.password, 
+      kyberPub : data.kyberPub,
+      kyberPriv : data.kyberPriv,
+      signPub : data.signPub,
+      signPriv : data.signPriv });
     
     router.push("/chat")
     

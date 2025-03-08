@@ -27,12 +27,6 @@ export async function POST(req) {
 
     // Destructure the incoming data. Use "let" so we can modify if needed.
     //let { username, email, password, kyberPriv, kyberPub, signPriv, signPub } = requestData;
-    
-    // If keys are not provided in the request, set default values.
-    /*if (!kyberPub) kyberPub = "1";
-    if (!kyberPriv) kyberPriv = "2";
-    if (!signPub) signPub = "3";
-    if (!signPriv) signPriv = "4";*/
 
     // generate key pairs before storing
     const {kyberPub, kyberPriv, signPub, signPriv} = generateKeys();  
@@ -68,23 +62,49 @@ export async function POST(req) {
 
 export async function GET(req) {
   try {
-    await connectToDatabase();
-    const url = new URL(req.url);
-    console.log(url)
-    const username = url.searchParams.get("username");
-    const password = url.searchParams.get("password");
+    // start of GET 
+    console.log("Incoming GET request:", req.url);
 
+    const { searchParams } = new URL(req.url);
+    const username = searchParams.get("username");
+    const password = searchParams.get("password");
+
+    console.log("Searching for user:", username);
+    await connectToDatabase();
+
+    // check log in
     if (!username || !password) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
-    
-    const existingUser = await User.findOne({ username , password });
-    if (existingUser) {
-      return NextResponse.json({ message: "Signed In Successfully" }, { status: 201 });
-    } else {
-      return NextResponse.json({ error: "User not found Sign in Unsuccessful" }, { status: 400 });
+    // check if MongoDB connection is working
+    if (!User) {
+      console.error("MongoDB UserModel is not defined.");
+      return NextResponse.json({ error: "Database connection error" }, { status: 500 });
     }
+    
+    // find user in MongoDB
+    const user = await User.findOne({ username }); // exclude password from response
+    if (!user) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // verify password: check directly for now
+    if (password !== user.password) {
+        return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    }
+
+    console.log("User found, sending full user object:", username);
+
+    return NextResponse.json({
+      username: user.username,
+      email : user.email,
+      password: user.password,
+      kyberPub: user.kyberPub, 
+      kyberPriv: user.kyberPriv, 
+      signPub : user.signPub,
+      signPriv : user.signPriv
+  });
   } catch (error) {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
