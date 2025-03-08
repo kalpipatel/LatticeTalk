@@ -1,10 +1,8 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
+import { io, Socket } from 'socket.io-client';
 import styles from './chat.module.css';
-
-// for message fetching and state
-//import useMessages from "../hooks/useMessages";
 
 interface Message {
   sender: string;
@@ -14,18 +12,23 @@ interface Message {
   timestamp?: string;
 }
 
-const ChatPage = () => {
+const socket: Socket = io("http://localhost:3001", {
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000,
+});
 
+const ChatPage = () => {
   const [senderId, setSenderId] = useState('67c8ed1e13327778cdb114a1');
   const [receiverId, setReceiverId] = useState('67c8eddcfa3b840f1c62ad4f');
+  const [chatId, setChatId] = useState("67ca2ef91ef56b74041ca020");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
 
   //Search Button
-  const [searchVisible, setSearchVisible] = useState(false); 
-  const [searchInput, setSearchInput] = useState<string>(""); 
+  const [searchVisible, setSearchVisible] = useState(false);
+  const [searchInput, setSearchInput] = useState<string>("");
   const [savedSearch, setSavedSearch] = useState(""); //Searched user variable
-
 
   useEffect(() => {
     const fetchUserIds = async () => {
@@ -52,75 +55,80 @@ const ChatPage = () => {
     fetchUserIds();
   }, []);
 
-  // fetch messages
+  useEffect(() => {
+    socket.emit("register", senderId);
+    socket.emit("joinChat", chatId);
+
+    socket.on("receiveMessage", (newMessage: Message) => {
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    });
+
+    return () => {
+      socket.off("receiveMessage");
+    };
+  }, [senderId, chatId]);
+
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await fetch(`/api/messages?sender=${senderId}&receiver=${receiverId}`);
+        const response = await fetch(`http://localhost:3001/messages/${chatId}`);
         const result = await response.json();
-        if (result.data) {
-          setMessages(result.data); // Set fetched messages to state
+        if (result) {
+          setMessages(result);
         }
       } catch (error) {
         console.error("Error fetching messages:", error);
       }
     };
     fetchMessages();
-  }, [senderId, receiverId]);
+  }, [chatId]);
 
   const sendMessage = async () => {
-
     if (!message.trim()) {
-      console.error("Message is empty. Not sending.");
       return;
     }
 
-    // const messageData = {
-    //   senderId, // replace with actual sender
-    //   receiverId, // replace with actual receiver
-    //   message: message.trim(), // ensures no extra spaces
-    // };
+    const messageData = {
+      senderId,
+      receiverId,
+      message: message.trim(),
+      chatId,
+      encryptedMsg: "",
+      ciphertextKem: "",
+      signature: "",
+    };
 
-    // console.log("Sending message:", messageData); // for debugging
+    socket.emit("sendMessage", messageData);
 
-  // sends a new chat message to the message API 
-    try {
-      const response = await fetch("/api/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ senderId, receiverId, message}),
-        //body: JSON.stringify( { sender: "user1", receiver: "user2", ciphertextKem :, encryptedMsg : , signature :}),
+    setMessage("");
+  };
+
+  useEffect(() => {
+    socket.on("receiveMessage", (newMessage: Message) => {
+      console.log("📩 New message received:", newMessage);
+
+      // Prevent duplicate messages
+      setMessages((prevMessages) => {
+        if (prevMessages.some(msg => msg._id === newMessage._id)) {
+          return prevMessages; // Ignore duplicate message
+        }
+        return [...prevMessages, newMessage];
+      });
     });
 
-    // for debugging
-    if (!response.ok) {
-      throw new Error(`ERROR: ${response.status}`);
-    }
-
-    const result = await response.json();
-    console.log("Server response:", result);
-
-    if (result.message) {
-      
-        console.log("Message sent successfully");  
-        setMessages((prevMessages) => [...prevMessages, result.data as Message]);
-        setMessage(""); // Clear input field
-      }
-
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
-      
-  };
+    return () => {
+      socket.off("receiveMessage"); // Cleanup to prevent duplicate listeners
+    };
+  }, []);
 
 
   return (
     <div className={styles.chatContainer}>
-      
+
       {/* Sidebar */}
       <div className={styles.sidebar}>
-        <div 
-          className={styles.sidebarItem} 
+        <div
+          className={styles.sidebarItem}
           onClick={() => setSearchVisible(true)}
         >
           {searchVisible ? (
@@ -132,53 +140,42 @@ const ChatPage = () => {
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  console.log("Enter pressed!!! Saving search:", searchInput); 
-                  setSavedSearch(searchInput); 
-                  setSearchInput(""); 
-                  setSearchVisible(false); 
+                  console.log("Enter pressed!!! Saving search:", searchInput);
+                  setSavedSearch(searchInput);
+                  setSearchInput("");
+                  setSearchVisible(false);
                 }
               }}
               autoFocus
-            /> 
+            />
           ) : (
             "Search User"
           )}
         </div>
-        
+
         {/* Settings */}
         <div className={styles.sidebarItem}>Settings</div>
-        
+
 
       </div>
 
       {/* Main Chat Section */}
       <div className={styles.chatRoom}>
         <h2 className={styles.chatHeader}>Chat Room</h2>
-        
+
         {/* Chat Messages */}
         <div className={styles.messages}>
-        {messages.map((msg) => (
-    <div
-      key={msg.timestamp}
-      className={msg.sender === senderId ? styles.myMessage : styles.friendMessage}
-    >
-      {msg.message}
-    </div>
-  ))}
-           
+          {messages.map((msg, index) => (
+            <div
+              key={msg._id || index}
+              className={msg.sender === senderId ? styles.myMessage : styles.friendMessage}
+            >
+              {msg.message}
+            </div>
+          ))}
         </div>
-
-        {/* Chat Input */}
         <div className={styles.chatInputContainer}>
-        <input
-            className={styles.chatInput}
-            type="text"
-            placeholder="Type your message"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          />
-
-          
+          <input className={styles.chatInput} type="text" placeholder="Type your message" value={message} onChange={(e) => setMessage(e.target.value)} />
           <button className={styles.sendButton} onClick={sendMessage}>➤</button>
         </div>
       </div>

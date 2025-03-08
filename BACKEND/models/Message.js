@@ -4,14 +4,13 @@
 import mongoose from "mongoose";
 
 const MessageSchema = new mongoose.Schema({
-    sender: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    receiver: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    message: {type: String, required: true,},
-    
-    timestamp: { type: Date, default: Date.now },
-    ciphertextKem: { type: String, required: false }, 
-    encryptedMsg: { type: String, required: false }, 
-    signature: { type: String, required: false }, 
+    sender: { type: String, required: true },
+    receiver: { type: String, required: true },
+    message: { type: String, required: true },  // ✅ Ensure this field is `message`, NOT `content`
+    encryptedMsg: { type: String, default: "" },
+    ciphertextKem: { type: String, default: "" },
+    signature: { type: String, default: "" },
+    timestamp: { type: Date, default: Date.now }
 });
 
-export default mongoose.models.Message || mongoose.model("Message", MessageSchema);
+export default mongoose.model("Message", MessageSchema);
