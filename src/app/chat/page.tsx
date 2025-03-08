@@ -28,6 +28,8 @@ const ChatPage = () => {
   }
 
   const senderName = user.username;
+  const senderKyberPub = user.kyberPub;
+  const senderSignPub = user.signPub;
   const receiverName = "cam"; // TEJAA FIND THE RECIVER NAMEEEEEEEE and assign it to this variable
 
   const [chatId, setChatId] = useState("67ca2ef91ef56b74041ca020");  // FIND THE CHAT ID between those two useers^^
@@ -35,7 +37,7 @@ const ChatPage = () => {
   const [messages, setMessages] = useState<Message[]>([]);
 
   const [searchQuery, setSearchQuery] = useState(""); // Search query state
-  const [filteredUsers, setFilteredUsers] = useState<[]>([]); // Filtered users based on search query
+  const [filteredUsers, setFilteredUsers] = useState<any[]>([]); // Filtered users based on search query
 
 
   //Search Button
@@ -115,6 +117,32 @@ const ChatPage = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const fetchUsers = async (query: string) => {
+      if (query) {
+        try {
+          const response = await fetch(`/api/search?query=${query}`);
+          const result = await response.json();
+
+          if (response.ok) {
+            setFilteredUsers(result.users); // Set the filtered users based on query
+          } else {
+            setFilteredUsers([]); // Clear results if no users found
+          }
+        } catch (error) {
+          console.error("Error fetching users:", error);
+        }
+      } else {
+        setFilteredUsers([]); // Clear results if the input is empty
+      }
+    };
+
+    if (searchQuery) {
+      fetchUsers(searchQuery); // Trigger the fetch when the searchQuery changes
+    } else {
+      setFilteredUsers([]); // Clear users if search query is empty
+    }
+  }, [searchQuery]);
   // useEffect(() => {
   //   const fetchFilteredUsers = async () => {
   //     try {
@@ -143,44 +171,75 @@ const ChatPage = () => {
   //     setFilteredUsers([]); // Clear users if search query is empty
   //   }
   // }, [searchQuery]); // Re-run effect every time the searchQuery changes
-
+  const handleUserClick = async (receiverUsername: string, receiverKyberPub: String, receiverSignPub: String) => {
+    try {
+      const senderUsername = senderName; // Sender's username (from context or state)
+      const senderKyberPub = user.kyberPub; // Sender's Kyber Public Key
+      const senderSignPub = user.signPub; // Sender's Signature Public Key
+  
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          senderUsername,
+          receiverUsername,
+          senderKyberPub,
+          senderSignPub,
+          receiverKyberPub,
+          receiverSignPub,
+        }),
+      });
+  
+      const result = await response.json();
+      if (response.ok) {
+        console.log('Chat created or retrieved successfully:', result);
+      } else {
+        console.error('Error creating chat:', result.error);
+      }
+    } catch (error) {
+      console.error('Error fetching /api/chat:', error);
+    }
+  };
+  
 
   return (
     <div className={styles.chatContainer}>
 
       {/* Sidebar */}
       <div className={styles.sidebar}>
-        <div
-          className={styles.sidebarItem}
-          onClick={() => setSearchVisible(true)}
-        >
-          {searchVisible ? (
-            <input
-              type="text"
-              placeholder="Search User"
-              className={styles.searchInput}
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  console.log("Enter pressed!!! Saving search:", searchInput);
-                  setSavedSearch(searchInput);
-                  setSearchInput("");
-                  setSearchVisible(false);
-                }
-              }}
-              autoFocus
-            />
-          ) : (
-            "Search User"
+        <div className={styles.sidebarItem}>
+          {/* Search Input */}
+          <input
+            type="text"
+            placeholder="Search User"
+            className={styles.searchInput}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)} // Update search query
+          />
+
+          {/* Display Search Results */}
+          {searchQuery && (
+            <div className={styles.searchResults}>
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((user: { username: string; kyberPub: string; signPub: string }, index: number) => (
+                  <div
+                    key={index}
+                    className={styles.userItem}
+                    onClick={() => handleUserClick(user.username, user.kyberPub, user.signPub)}
+                  >
+                    {user.username}
+                  </div>
+                ))
+              ) : (
+                <div>No users found</div>
+              )}
+            </div>
           )}
         </div>
-
-        {/* Settings */}
-        <div className={styles.sidebarItem}>Settings</div>
-
-
       </div>
+
 
       {/* Main Chat Section */}
       <div className={styles.chatRoom}>

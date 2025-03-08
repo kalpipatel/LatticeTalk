@@ -133,6 +133,32 @@
   color: black 
 }
 
+.searchResults {
+  position: relative;
+  top: 10px; /* Added margin for better spacing */
+  left: 0;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-top: none;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  border-radius: 0 0 5px 5px; /* Rounded corners at the bottom */
+}
+
+.userItem {
+  padding: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: black;
+}
+
+.userItem:hover {
+  background-color: #e0e0e0;
+}
+
 .messages::-webkit-scrollbar {
   width: 8px;
 }

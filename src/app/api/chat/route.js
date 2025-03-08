@@ -8,10 +8,10 @@ export async function POST(req) {
     await connectToDatabase();
 
     try {
-        const { senderUsername, receiverUsername, user1Keys, user2Keys } = await req.json();
+        const { senderUsername, receiverUsername, senderKyberPub, senderSignPub, receiverKyberPub, receiverSignPub } = await req.json();
 
         if (!senderUsername || !receiverUsername) {
-            return NextResponse.json({ error: "Sender and receiver IDs are required" }, { status: 400 });
+            return NextResponse.json({ error: "Sender and receiver usernames are required" }, { status: 400 });
         }
       
     //find sender using username
@@ -29,10 +29,10 @@ export async function POST(req) {
         chat = new Chat({
           participants: [senderUsername, receiverUsername],
           messages: [],
-          User1KyberPub: user1Keys,
-          User2KyberPub: user2Keys,
-          User1SignPub: user1Keys,
-          User2SignPub: user2Keys,
+          User1KyberPub: senderKyberPub,
+          User2KyberPub: receiverKyberPub,
+          User1SignPub: senderSignPub,
+          User2SignPub: receiverSignPub,
         });
   
         await chat.save();
@@ -56,7 +56,7 @@ export async function GET(req) {
       const username = searchParams.get("username");
   
       if (!username) {
-        return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+        return NextResponse.json({ error: "Usernames required" }, { status: 400 });
       }
   
       // Find all chats where the user is a participant
