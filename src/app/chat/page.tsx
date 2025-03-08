@@ -30,9 +30,9 @@ const ChatPage = () => {
   const senderName = user.username;
   const senderKyberPub = user.kyberPub;
   const senderSignPub = user.signPub;
-  const receiverName = "cam"; // TEJAA FIND THE RECIVER NAMEEEEEEEE and assign it to this variable
+  const receiverName = "kpats"; // TEJAA FIND THE RECIVER NAMEEEEEEEE and assign it to this variable
 
-  const [chatId, setChatId] = useState("67ca2ef91ef56b74041ca020");  // FIND THE CHAT ID between those two useers^^
+  const [chatId, setChatId] = useState("67cc0fbc0f6e9f24b65a3f1f");  // FIND THE CHAT ID between those two useers^^ // this is kpats and teja
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -160,34 +160,7 @@ const ChatPage = () => {
       setFilteredUsers([]); // Clear users if search query is empty
     }
   }, [searchQuery]);
-  // useEffect(() => {
-  //   const fetchFilteredUsers = async () => {
-  //     try {
-  //       // Fetch from the backend running on port 3001
-  //       const response = await fetch(`http://localhost:3001/search?query=${searchQuery}`);
-  //       const result = await response.json();
 
-  //       if (response.ok) {
-  //         setFilteredUsers(result.users); // Update filtered users based on the query
-  //       } else {
-  //         setFilteredUsers([]); // Clear users if no match
-  //       }
-  //     } catch (error) {
-  //       // Log error and check for specific error
-  //       console.error("Error fetching users:", error);
-  //       if (error instanceof Error && error.message.includes("404")) {
-  //         // If error contains 404, show a custom message
-  //         console.log("User not found");
-  //       }
-  //     }
-  //   };
-
-  //   if (searchQuery) {
-  //     fetchFilteredUsers();
-  //   } else {
-  //     setFilteredUsers([]); // Clear users if search query is empty
-  //   }
-  // }, [searchQuery]); // Re-run effect every time the searchQuery changes
   const handleUserClick = async (receiverUsername: string, receiverKyberPub: String, receiverSignPub: String) => {
     try {
       const senderUsername = senderName; // Sender's username (from context or state)
