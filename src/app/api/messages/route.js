@@ -5,22 +5,16 @@ import { connectToDatabase } from "../../../../BACKEND/lib/mongodb";
 import User from "../../../../BACKEND/models/User";
 import { NextResponse } from "next/server";
 import Chat from "../../../../BACKEND/models/Chat";
+import Message from "../../../../BACKEND/models/Chat";
 import { encryptMessage, signMessage } from "@/../BACKEND/encryption";
-
-// const [senderId, setSenderId] = useState('67c8ed1e13327778cdb114a1');
-// const [receiverId, setReceiverId] = useState('67c8eddcfa3b840f1c62ad4f');
-
+import { decryptMessage, verifySignature } from "@/../BACKEND/encryption";
 
 export async function POST(req) {
 
-
   await connectToDatabase();  // ensures db is connected
-
-
  
   try {
     const { senderUsername, receiverUsername, message } = await req.json();
-
 
     if (!senderUsername || !receiverUsername || !message) {
       return NextResponse.json({error: "missing something"}, {status: 400});
@@ -28,8 +22,6 @@ export async function POST(req) {
 
     const sender = await User.findOne({ username: senderUsername });
     const receiver = await User.findOne({ username: receiverUsername });
-
-
 
     // finds the sender/receiver in the database
     if (!sender || !receiver) {
@@ -44,10 +36,10 @@ export async function POST(req) {
         participants: [senderUsername, receiverUsername],
         messages: [],
         // // edit the keys
-        // User1KyberPub: 1,
-        // User2KyberPub: 2,
-        // User1SignPub: 3,
-        // User2SignPub: 4,
+        User1KyberPub: sender.kyberPub,
+        User2KyberPub: receiver.kyberPub,
+        User1SignPub: sender.signPub,
+        User2SignPub: receiver.signPriv,
       });
 
       await chat.save();
@@ -57,11 +49,14 @@ export async function POST(req) {
     //----ENCRYPTION----
     // generate ciphertext, encryptedmessage, encsharedsecret before storing
     // have to convert keys back to Uint8 array to use methods
-    const userStringKey = sender.kyberPub;
-    const userStringSign = sender.signPriv;
+    const userStringKey = receiver.kyberPub; // encapsulating using receiver's public key
+    const userStringSign = sender.signPriv; // sign using sender's priv key 
+
 
     const kyberPubArray = new Uint8Array(Buffer.from(userStringKey, 'base64'));
     const signPrivArray = new Uint8Array(Buffer.from(userStringSign, 'base64'));
+    console.log("Opponent's kyber public key:", userStringKey);
+    console.log("Sender's signing priv key:", userStringSign);
 
 
     const { ciphertextKem, encryptedMessage, encSharedSecret } = encryptMessage(kyberPubArray, message);
@@ -69,12 +64,11 @@ export async function POST(req) {
     // generate signature before storing 
     const signature = signMessage(signPrivArray, encryptedMessage);
 
-    // convert to base 64 before
+    // convert to base 64 before creating new message
     const cipher64 = Buffer.from(ciphertextKem).toString("base64")
     const encrypted64 = Buffer.from(encryptedMessage).toString("base64")
     const signature64 = Buffer.from(signature).toString("base64")
 
-  
     // creates a new message
     const newMessage = {
       sender: sender.username,
@@ -121,21 +115,97 @@ export async function GET(req) {
   await connectToDatabase();
 
   const { searchParams } = new URL(req.url);
-  const senderUsername = searchParams.get("sender");
+  const senderUsername = searchParams.get("sender"); // switch for fetching/decrypting
   const receiverUsername = searchParams.get("receiver");
 
   if (!senderUsername || !receiverUsername) {
     return NextResponse.json({ error: "Missing sender or receiver name"})
   }
 
+  const senderObj = await User.findOne({ username: senderUsername });
+  const receiverObj = await User.findOne({ username: receiverUsername });
+
+  //----Verify signature----
+      // use recipient's signature to verify
+      // = verifySignature(signPriv, encryptedMessage, signature) = must be true
+
+      //----DECRYPTION----
+      // use recipient's private key and encryptedText to decrypt text
+      // generate decryptedText, decSharedSecret before storing
+       // = decryptMessage(kyberPriv, ciphertextKem, encryptedMessage)
   try {
+    // find all messages between sender & receiver
+    /*
+    const messages = await Message.find({ 
+      $or: [
+          { sender : senderUsername, receiver : receiverUsername },
+          { sender: receiverUsername, receiver: senderUsername }
+      ]
+    });
+    */
+
+    // !! if it's recipient's 
+    
+    // fetch recipient's private kyber key 
+    const receiverPrivString = senderObj.kyberPriv;
+
+    // query through chat between user1 and user2
     const chat = await Chat.findOne({ participants: { $all: [senderUsername, receiverUsername]}});
 
     if (!chat) {
       return NextResponse.json({error: "chat not found"}, {status: 404});
     }
 
-    return NextResponse.json({data: chat.messages});
+    // now look for which one is the sender's signing public key 
+    // check for index 0: if same as sender, then give it user1's sign key. if someone else other than sender, then take user2's key
+    // opponent = receiver, sender = me
+    const opponentPubStr = chat.participants[0] === receiverUsername ? chat.User1SignPub : chat.User2SignPub;
+
+    // have to convert keys back to Uint8 array to use methods
+    const receiverKyPrivArray = new Uint8Array(Buffer.from(receiverPrivString, 'base64'));
+    const senderSignPubArray = new Uint8Array(Buffer.from(opponentPubStr, 'base64'));
+    console.log("Sender's (my own) kyber private key:", receiverPrivString);
+    console.log("Opponent's signing public key:", opponentPubStr);
+    
+    // convert all the necessary keys: signature, any keys, ciphertext (base64) => (Uint8Array)
+    // encryptedText will remain base64
+
+    // decrypt messages before showing on chat page. iterate through each existing message between two users 
+    const decryptedMessages = chat.messages.map((msg) => {
+      const msgSign = new Uint8Array(Buffer.from(msg.signature, 'base64'));
+      const msgCipher = new Uint8Array(Buffer.from(msg.ciphertextKem, 'base64'));
+      console.log("Ciphertext", msg.ciphertextKem);
+      console.log("encrypted Msg: ", msg.encryptedMsg);
+      console.log("Signature", msg.signature);
+      if (!msg.encryptedMsg || !msgCipher|| !msgSign) {
+          return msg; // check if all values exist 
+      }
+
+      if (msg.sender === senderUsername) {
+        console.log("Sender name is ", senderUsername);
+        // in this case message was SENT by me --> no need to decrypt, just verify signature
+        const isValid = verifySignature(senderSignPubArray, msg.encryptedMsg, msgSign);
+        return { ...msg.toObject(), content: isValid ? "[SENT MESSAGE]" : "[INVALID SIGNATURE]" };
+      } else {
+        try {
+          // message was RECEIVED from opponent so SENDER: Decrypt any incoming message
+          const {decryptedMessage, decss } = decryptMessage(receiverKyPrivArray, msgCipher, msg.encryptedMsg);
+  
+          console.error("Decrypted message:", decryptedMessage);
+
+          // must verify RECEIPIENT's signature with their pub key
+          const isValid = verifySignature(senderSignPubArray, msg.encryptedMsg, msgSign);
+          return { ...msg.toObject(), content: isValid ? decryptedMessage : "[INVALID SIGNATURE]" };
+            
+        } catch (error) {
+            console.error("Decryption error:", error);
+            return { ...msg.toObject(), content: "[DECRYPTION FAILED]" };
+        }
+      }
+    });
+
+  return NextResponse.json({ data: decryptedMessages });
+
   } catch (error) {
     console.error("Error in GET /api/messages", error);
     return NextResponse.json({ error: error.message}, {status: 500})

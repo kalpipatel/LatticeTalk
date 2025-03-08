@@ -4,13 +4,17 @@ import React, { useState, useEffect } from 'react';
 import { io, Socket } from 'socket.io-client';
 import styles from './chat.module.css';
 import { useUser } from '@/context/userContext';
+import { encryptMessage } from '../../../BACKEND/encryption';
 
 interface Message {
   sender: string;
   receiver: string;
   content: string;
-  _id?: string;
   timestamp?: string;
+  ciphertext? : string;
+  encrypted? : string;
+  signature? : string;
+  _id?: string;
 }
 
 const socket: Socket = io("http://localhost:3001", {
@@ -30,7 +34,7 @@ const ChatPage = () => {
   const senderName = user.username;
   const senderKyberPub = user.kyberPub;
   const senderSignPub = user.signPub;
-  const receiverName = "kpats"; // TEJAA FIND THE RECIVER NAMEEEEEEEE and assign it to this variable
+  const receiverName = "doe"; // TEJAA FIND THE RECIVER NAMEEEEEEEE and assign it to this variable
 
   const [chatId, setChatId] = useState("67cc0fbc0f6e9f24b65a3f1f");  // FIND THE CHAT ID between those two useers^^ // this is kpats and teja
   const [message, setMessage] = useState("");
@@ -103,7 +107,7 @@ const ChatPage = () => {
       console.log("Message saved successfully:", data);
       setMessages((prevMessages) => [
         ...prevMessages,
-        { sender: senderName, receiver: receiverName, content: message.trim() },
+        { sender: senderName, receiver: receiverName, content:  message.trim()},
       ]);
     } else {
       console.error("Error saving message:", data.error);
@@ -117,15 +121,32 @@ const ChatPage = () => {
   };
 
   useEffect(() => {
-    socket.on("receiveMessage", (newMessage: Message) => {
+    socket.on("receiveMessage", async (newMessage: Message) => {
       console.log("New message received:", newMessage);
 
+      /*
+      // send the encrypted message to the backend for decryption
+      const response = await fetch("/api/decryption", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            encryptedMessage: newMessage.content, // send the encrypted content
+            privateKey: //?receiver, // Assume you have user's private key on the frontend
+        }),
+    });
+        
+      const data = await response.json();
+      const decryptedMessage = data.decryptedMessage;
+      */
       // Prevent duplicate messages
       setMessages((prevMessages) => {
         if (prevMessages.some(msg => msg._id === newMessage._id)) {
           return prevMessages; // Ignore duplicate message
         }
-        return [...prevMessages, newMessage];
+        //return [...prevMessages,  { ...newMessage, content: decryptedMessage }];
+        return [...prevMessages,  newMessage];
       });
     });
 
