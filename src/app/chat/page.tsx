@@ -8,7 +8,7 @@ import { useUser } from '@/context/userContext';
 interface Message {
   sender: string;
   receiver: string;
-  message: string;
+  content: string;
   _id?: string;
   timestamp?: string;
 }
@@ -77,24 +77,41 @@ const ChatPage = () => {
         console.error("Error fetching messages:", error);
       }
     };
+    if (chatId) {
+      fetchMessages(); // Call fetchMessages when the component mounts or chatId changes
+    }
   }, [chatId, receiverName]);
 
-  const sendMessage = async () => {
-    if (!message.trim()) {
-      return;
+  const saveMessage = async () => {
+    // makes a POST request to the backend api route to save message in database
+  try {
+    const response = await fetch("/api/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        senderUsername: senderName,
+        receiverUsername: receiverName,
+        message: message.trim(),
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      console.log("Message saved successfully:", data);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: senderName, receiver: receiverName, content: message.trim() },
+      ]);
+    } else {
+      console.error("Error saving message:", data.error);
     }
+  } catch (error) {
+    console.error("Error sending message:", error);
+  }
 
-    const messageData = {
-      senderName,
-      receiverName,
-      message: message.trim(),
-      chatId,
-      encryptedMsg: "",
-      ciphertextKem: "",
-      signature: "",
-    };
-
-    socket.emit("sendMessage", messageData);
 
     setMessage("");
   };
@@ -253,7 +270,7 @@ const ChatPage = () => {
                 key={msg._id || index}
                 className={msg.sender === senderName ? styles.myMessage : styles.friendMessage}
               >
-                {msg.message}
+                {msg.content}
               </div>
             ))
           ) : (
@@ -262,7 +279,7 @@ const ChatPage = () => {
         </div>
         <div className={styles.chatInputContainer}>
           <input className={styles.chatInput} type="text" placeholder="Type your message" value={message} onChange={(e) => setMessage(e.target.value)} />
-          <button className={styles.sendButton} onClick={sendMessage}>➤</button>
+          <button className={styles.sendButton} onClick={saveMessage}>➤</button>
         </div>
       </div>
     </div>

@@ -2,7 +2,6 @@ import { connectToDatabase } from "./lib/mongodb.js";
 import express from "express";
 import { Server } from "socket.io";
 import cors from "cors";
-//import Message from "./models/Message.js";
 import Chat from "./models/Chat.js";
 import { Message } from "./models/Chat.js";
 import { createServer } from "http";
@@ -86,21 +85,19 @@ io.on("connection", (socket) => {
         console.log(data.sender)
         console.log("got here")
 
-        //console.log(data.r)
+
+        // insert logic data.message becomes encrypted. save this in content: below
 
         try {
             const newMessage = new Message({
                 sender: data.senderName,
                 receiver: data.receiverName,
                 content: data.message,
-                //timestamp: Date.now,
             });
 
             console.log(newMessage);
 
-            //chat.messages.push(newMessage);
-    
-            //await chat.save();
+
             io.to(data.chatId).emit("receiveMessage", newMessage);
             console.log("Message sent successfully!", newMessage);
         } catch (error) {
