@@ -3,7 +3,6 @@
 // GET to get messages from the database
 import { connectToDatabase } from "../../../../BACKEND/lib/mongodb";
 import User from "../../../../BACKEND/models/User";
-import Message from "../../../../BACKEND/models/Message";
 import { NextResponse } from "next/server";
 import Chat from "../../../../BACKEND/models/Chat";
 

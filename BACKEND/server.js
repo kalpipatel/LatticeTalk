@@ -2,13 +2,16 @@ import { connectToDatabase } from "./lib/mongodb.js";
 import express from "express";
 import { Server } from "socket.io";
 import cors from "cors";
-import Message from "./models/Message.js";
+//import Message from "./models/Message.js";
 import Chat from "./models/Chat.js";
+import { Message } from "./models/Chat.js";
 import { createServer } from "http";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 
 dotenv.config();
+
+
 
 // Connect to database
 (async () => {
@@ -79,19 +82,25 @@ io.on("connection", (socket) => {
             console.warn("Empty message detected! Aborting.");
             return;
         }
-    
+
+        console.log(data.sender)
+        console.log("got here")
+
+        //console.log(data.r)
+
         try {
             const newMessage = new Message({
-                sender: data.senderId,
-                receiver: data.receiverId,
-                message: data.message,
-                encryptedMsg: data.encryptedMsg,
-                ciphertextKem: data.ciphertextKem,
-                signature: data.signature,
-                timestamp: new Date(),
+                sender: data.senderName,
+                receiver: data.receiverName,
+                content: data.message,
+                //timestamp: Date.now,
             });
+
+            console.log(newMessage);
+
+            //chat.messages.push(newMessage);
     
-            await newMessage.save();
+            //await chat.save();
             io.to(data.chatId).emit("receiveMessage", newMessage);
             console.log("Message sent successfully!", newMessage);
         } catch (error) {
