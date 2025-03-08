@@ -44,11 +44,11 @@ export async function POST(req) {
       chat = new Chat({
         participants: [senderUsername, receiverUsername],
         messages: [],
-        // edit the keys
-        User1KyberPub: 1,
-        User2KyberPub: 2,
-        User1SignPub: 3,
-        User2SignPub: 4,
+        // // edit the keys
+        // User1KyberPub: 1,
+        // User2KyberPub: 2,
+        // User1SignPub: 3,
+        // User2SignPub: 4,
       });
 
       await chat.save();

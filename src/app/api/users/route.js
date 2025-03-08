@@ -99,9 +99,9 @@ export async function GET(req) {
       username: user.username,
       email : user.email,
       password: user.password,
-      kyberPub: user.kyberPub, 
+      kyberPub: user.username+"----"+user.kyberPub, 
       kyberPriv: user.kyberPriv, 
-      signPub : user.signPub,
+      signPub : user.username+"----"+user.signPub,
       signPriv : user.signPriv
   });
   } catch (error) {
