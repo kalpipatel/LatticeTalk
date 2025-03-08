@@ -5,6 +5,7 @@ import { connectToDatabase } from "../../../../BACKEND/lib/mongodb";
 import User from "../../../../BACKEND/models/User";
 import { NextResponse } from "next/server";
 import Chat from "../../../../BACKEND/models/Chat";
+import { encryptMessage, signMessage } from "@/../BACKEND/encryption";
 
 // const [senderId, setSenderId] = useState('67c8ed1e13327778cdb114a1');
 // const [receiverId, setReceiverId] = useState('67c8eddcfa3b840f1c62ad4f');
@@ -35,8 +36,6 @@ export async function POST(req) {
       return NextResponse.json({ error: "Sender or receiver not found"}, {status: 400});
     }
 
-
-
     let chat = await Chat.findOne({participants: { $all: [senderUsername, receiverUsername] } });
 
     if (!chat) {
@@ -55,6 +54,26 @@ export async function POST(req) {
       //return NextResponse.json({error: "Chat does not exist" }, { status: 400});
     }
 
+    //----ENCRYPTION----
+    // generate ciphertext, encryptedmessage, encsharedsecret before storing
+    // have to convert keys back to Uint8 array to use methods
+    const userStringKey = sender.kyberPub;
+    const userStringSign = sender.signPriv;
+
+    const kyberPubArray = new Uint8Array(Buffer.from(userStringKey, 'base64'));
+    const signPrivArray = new Uint8Array(Buffer.from(userStringSign, 'base64'));
+
+
+    const { ciphertextKem, encryptedMessage, encSharedSecret } = encryptMessage(kyberPubArray, message);
+
+    // generate signature before storing 
+    const signature = signMessage(signPrivArray, encryptedMessage);
+
+    // convert to base 64 before
+    const cipher64 = Buffer.from(ciphertextKem).toString("base64")
+    const encrypted64 = Buffer.from(encryptedMessage).toString("base64")
+    const signature64 = Buffer.from(signature).toString("base64")
+
   
     // creates a new message
     const newMessage = {
@@ -62,6 +81,9 @@ export async function POST(req) {
       receiver: receiver.username,
       content: message.trim(),
       timestamp: new Date(),
+      ciphertextKem : cipher64,
+      encryptedMsg : encrypted64,
+      signature : signature64
     };
 
 

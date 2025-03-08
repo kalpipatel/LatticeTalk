@@ -5,6 +5,9 @@ const MessageSchema = new mongoose.Schema({
   receiver: { type: String, required: true},
   content: { type: String, required: true }, // Message content
   timestamp: { type: Date, default: Date.now }, // Timestamp of when the message was sent
+  ciphertextKem : { type: String, required: false },
+  encryptedMsg : { type: String, required: false },
+  signature : { type: String, required: false },
 });
 
 const ChatSchema = new mongoose.Schema({
