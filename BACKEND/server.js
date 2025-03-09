@@ -7,6 +7,8 @@ import { Message } from "./models/Chat.js";
 import { createServer } from "http";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import multer from "multer";
+import { transcribeAudio } from './transcribe.js';
 
 dotenv.config();
 
@@ -36,6 +38,16 @@ const io = new Server(server, {
         methods: ["GET", "POST"],
     },
 });
+
+const storage = multer.diskStorage({ // Save file to disk for text-to-speech
+    destination: "uploads/",
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}.webm`);
+    }
+});
+
+// Multer configuration for Speech-to-Text
+const upload = multer({ storage });
 
 // Store online users
 const onlineUsers = {};
@@ -116,6 +128,23 @@ io.on("connection", (socket) => {
             console.log(`User ${userId} removed from online users`);
         }
     });
+});
+
+app.post("/transcribe", upload.single("audio_file"), async (req, res) => {
+    if (!req.file) { //error handling
+        return res.status(400).json({ error: "No audio file uploaded!" });
+    }
+    // Get the file path of the uploaded audio
+    const filePath = req.file.path;
+
+    try {
+        const transcription = await transcribeAudio(filePath);// Transcribe the audio file by calling the transcribeAudio function
+        console.log("Transcription:", transcription);
+        res.json({ transcription }); // Send the transcription back to the client in JSON format
+    } catch (error) {
+        console.error("Error transcribing audio:", error);
+        res.status(500).json({ error: "Speech recognition failed" });
+    }
 });
 
 // API route to fetch messages for a chat

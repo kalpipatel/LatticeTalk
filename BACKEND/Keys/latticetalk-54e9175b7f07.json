@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "latticetalk",
+  "private_key_id": "54e9175b7f071d8207a9f0af5e9d42b921f7df1c",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCzOWIu/AUhEIc7\neXVelv4WqWK23Er883Em4HmSMSjozytYea11xckWwwxJL0q/3PL5oMG/+TDursKq\n1nOSyu5V3EcxDW1HDlxl8sZ5W8tqwd53Os00KN6svbxYA2Iw6FMV3LtxDkG6U2nm\nr2euGE2G5017xpr00CdyTsmYYvUcO3stfcoFvV8ux5mz17ocU4UNBS0TK5OH6+D3\n5ygycXiQhyl8DucGFjq9TOkWCg8um49ZjkO7lthFx3zJwvJ5QZOJVMH3mvJBS7PC\nK99mrEgcw8yVWvh9fQSdrLzuENx5H6D8bf1G3UFDbvjEwjI5pROf1O1hkAq+GTu6\nxQlTfdndAgMBAAECggEABmJYZ4ENs7hRgOJaNnTddzQwcoAVYb5QPQjI+9apdOWQ\nTzYCYkwZ1ig7g03edUgrFY5O6IY5Yn8yKwC5nDSDWeafWJV4W4wc6XrE7CTDcbmX\nMZsUHTQJfpDBqUbxk/lqoEA9IxFVcQwwnQmJgW+XL2OE5JBWC7twdEdvMfDwd0Ft\n3hBugQ7Iww4Wxu52dmrBqaYWdHTXjQNeXJ/HBwicXIDzBu5gaRXR1PR00SNQ/VDO\np+5SNByBD5QJt6oHaMzJ+QU7JBxYID8+Ltqdtqa+vrRerF/UtuomJ35aFLB3Gpnt\np4qworbMHYkJZcc+2MtLUQ8AwOo6sMqq65OrdgcAgQKBgQDk8BiNOZZtg+6fDT04\nU4iHX4J/deAIMWFrMRr9tDShNAig1ZhKNZ47IEkQG3RzcrbGw2pryDpJZnOR51vR\nqt982EKWzfOmNAeedIno23p/3PjrhUFszfkwETrgUckxtGK8em6iFAlr0RFBFQxc\n5PiL0b4GtMR1v0gVOsbyL1lEHQKBgQDIaOXAObmiIIdNHMpGeMW38dsNZapKDT4K\nh8hrwt6LrwilgPhpcWxwQiFtAj72oI5R9rKa/MT9Zmrb1sB+Fx7WZbZrtvOKDeIq\nPNJs1kLKcqlyR7JYqsJ+OyGxSlv6C4T+OenX8lrl6fzlRSkSWhYs29ERj5KoPQJr\nSNLvbD+AwQKBgQCf7Mzp0qGvrSsC9oeeklPcZS7PBTPT5VLtQ2dcdQcS2TtxxuPU\nazI2kW4Yj2VAxJDDtnzgAAYfgi8XbCvrAleOaa/Sktoyb0QnP7ea777aFS3ZsMOs\nUxJQrqiXTOqkCyOyEEC6fg66v1gzQ5XYSqcJXSJGov5eVpnvIpkZU1QjTQKBgQC7\nml6ALElWuIaPrAS6JXJIuBGrn+DiAzVxnBwErF2xer9oVquz4SZ2i6FIrxKLwk6X\n8YzOQxKQd2BOvOBi6HfIkVxLxu6B7G8rxNXiZkwNwXpXbUBJekgo7Gek1Av3rPLp\nHQOHT+rBUOGZKb3B3Szm/zrd6n2KGdp63af/0mA7wQKBgAWGek/AWV85Off3zuHO\nPBtzqmspMPetBHr4Rhb4tzFjAqvfa8ebtFLOmOSaAdQ+tx5C9fUEvFx3PcXkqDHy\ny4Ntu9uc6J1TazGbZ3laFzaWsxs11GxTWB2L+IAnp8N7iPHlMplr6PB16jDGfUBG\naW3G6gxXxH+GVopB7fhWL8Z6\n-----END PRIVATE KEY-----\n",
+  "client_email": "latticetalk@latticetalk.iam.gserviceaccount.com",
+  "client_id": "110054549724107849617",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/latticetalk%40latticetalk.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
