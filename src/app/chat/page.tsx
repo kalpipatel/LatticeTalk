@@ -1,7 +1,8 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
+import useTranscribe from "../hooks/useTranscribe";
 import styles from './chat.module.css';
 import { useUser } from '@/context/userContext';
 import { encryptMessage } from '../../../BACKEND/encryption';
@@ -46,6 +47,9 @@ const ChatPage = () => {
 
   const [searchQuery, setSearchQuery] = useState(""); // Search query state
   const [filteredUsers, setFilteredUsers] = useState<any[]>([]); // Filtered users based on search query
+
+  const inputRef = useRef<HTMLInputElement>(null); // track input field
+  const { transcript, recording, startRecording, stopRecording } = useTranscribe();
 
   useEffect(() => {
     const fetchUsers = async (query: string) => {
@@ -114,6 +118,11 @@ const ChatPage = () => {
     }
   };
 
+  useEffect(() => {
+    if (transcript) {
+      setMessage((prev) => (prev ? prev + " " + transcript : transcript));
+    }
+  }, [transcript]);
 
   useEffect(() => {
     socket.emit("register", senderName);
@@ -299,6 +308,13 @@ const ChatPage = () => {
         <div className={styles.chatInputContainer}>
           <input className={styles.chatInput} type="text" placeholder="Type your message" value={message} onChange={(e) => setMessage(e.target.value)} />
           <button className={styles.sendButton} onClick={saveMessage}>➤</button>
+          <button
+            className={`${styles.micButton} ${recording ? styles.recording : ""}`}
+            onMouseDown={startRecording}
+            onMouseUp={stopRecording}
+          >
+            🎤
+          </button>
         </div>
       </div>
     </div>
