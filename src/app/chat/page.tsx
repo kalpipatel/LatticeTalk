@@ -13,9 +13,9 @@ interface Message {
   receiver: string;
   content?: string;
   timestamp?: string;
-  ciphertext? : string;
-  encrypted? : string;
-  signature? : string;
+  ciphertext?: string;
+  encrypted?: string;
+  signature?: string;
   _id?: string;
 }
 
@@ -85,7 +85,7 @@ const ChatPage = () => {
       const senderUsername = senderName; // Sender's username (from context or state)
       const senderKyberPub = user.kyberPub; // Sender's Kyber Public Key
       const senderSignPub = user.signPub; // Sender's Signature Public Key
-  
+
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -100,7 +100,7 @@ const ChatPage = () => {
           receiverSignPub,
         }),
       });
-  
+
       const result = await response.json();
       if (response.ok) {
 
@@ -109,7 +109,7 @@ const ChatPage = () => {
         console.log('Chat created or retrieved successfully:', result);
         setChatId(chat._id);
         setReceiverName(chat.participants.find((participant: string) => participant !== senderName));
-        
+
       } else {
         console.error('Error creating chat:', result.error);
       }
@@ -171,33 +171,33 @@ const ChatPage = () => {
 
   const saveMessage = async () => {
     // makes a POST request to the backend api route to save message in database
-  try {
-    const response = await fetch("/api/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        senderUsername: senderName,
-        receiverUsername: receiverName,
-        message: message.trim(),
-      }),
-    });
+    try {
+      const response = await fetch("/api/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          senderUsername: senderName,
+          receiverUsername: receiverName,
+          message: message.trim(),
+        }),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (response.ok) {
-      console.log("Message saved successfully:", data);
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { sender: senderName, receiver: receiverName ?? "", content:  message.trim()},
-      ]);
-    } else {
-      console.error("Error saving message:", data.error);
+      if (response.ok) {
+        console.log("Message saved successfully:", data);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { sender: senderName, receiver: receiverName ?? "", content: message.trim() },
+        ]);
+      } else {
+        console.error("Error saving message:", data.error);
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
     }
-  } catch (error) {
-    console.error("Error sending message:", error);
-  }
     setMessage("");
   };
 
@@ -205,36 +205,20 @@ const ChatPage = () => {
     socket.on("receiveMessage", async (newMessage: Message) => {
       console.log("New message received:", newMessage);
 
-      /*
-      // send the encrypted message to the backend for decryption
-      const response = await fetch("/api/decryption", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            encryptedMessage: newMessage.content, // send the encrypted content
-            privateKey: //?receiver, // Assume you have user's private key on the frontend
-        }),
-    });
-        
-      const data = await response.json();
-      const decryptedMessage = data.decryptedMessage;
-      */
       // Prevent duplicate messages
       setMessages((prevMessages) => {
         if (prevMessages.some(msg => msg._id === newMessage._id)) {
           return prevMessages; // Ignore duplicate message
         }
         //return [...prevMessages,  { ...newMessage, content: decryptedMessage }];
-        return [...prevMessages,  newMessage];
+        return [...prevMessages, newMessage];
       });
     });
 
     return () => {
       socket.off("receiveMessage"); // Cleanup to prevent duplicate listeners
     };
-  }, [chatId, receiverName]); 
+  }, [chatId, receiverName]);
 
   return (
     <div className={styles.chatContainer}>
@@ -271,24 +255,24 @@ const ChatPage = () => {
           )}
         </div>
 
-            {/* Add Sign Out Button */}
-            <div>
-            <button 
-              className={styles['toggle-button']} 
-              onClick={() => {
-                clearUser(); // Clear user data
-                router.push("./"); // Redirect to home page
-              }}
-            >
-              Sign Out
-            </button>
-            </div>
+        {/* Add Sign Out Button */}
+        <div>
+          <button
+            className={styles['toggle-button']}
+            onClick={() => {
+              clearUser(); // Clear user data
+              router.push("./"); // Redirect to home page
+            }}
+          >
+            Sign Out
+          </button>
+        </div>
       </div>
 
 
       {/* Main Chat Section */}
       <div className={styles.chatRoom}>
-        <h2 className={styles.chatHeader}>Chat Room</h2>
+      <h2 className={styles.chatHeader}>{receiverName ? `Chat with ${receiverName}` : "Select Someone to Chat With!"}</h2>
 
         {/* Chat Messages */}
         <div className={styles.messages}>
@@ -304,17 +288,35 @@ const ChatPage = () => {
           ) : (
             <div>No messages found</div>
           )}
+
+          {/* transcription */}
         </div>
         <div className={styles.chatInputContainer}>
           <input className={styles.chatInput} type="text" placeholder="Type your message" value={message} onChange={(e) => setMessage(e.target.value)} />
           <button className={styles.sendButton} onClick={saveMessage}>➤</button>
+
           <button
+            className={`${styles.micButton} ${recording ? styles.recording : ""}`}
+            onClick={() => {
+              if (recording) {
+                stopRecording();
+              } else {
+                startRecording();
+              }
+            }}
+          >
+            🎤
+          </button>
+
+          {/* <button
             className={`${styles.micButton} ${recording ? styles.recording : ""}`}
             onMouseDown={startRecording}
             onMouseUp={stopRecording}
           >
             🎤
-          </button>
+          </button> */}
+
+
         </div>
       </div>
     </div>
