@@ -114,9 +114,9 @@ export default function AboutUs() {
 
       <div className={styles.aboutUsWrapper}>
         <div className={styles.aboutUsBox}>
-          <h1>About LatticeTalks</h1>
+          <h1>About LatticeTalk</h1>
           <p>
-            Welcome to <strong>LatticeTalks</strong>, the future of secure communication.
+            Welcome to <strong>LatticeTalk</strong>, the future of secure communication.
             In an era where quantum computing threatens traditional encryption,
             we are pioneering next-generation security with <strong>lattice-based
             post-quantum encryption</strong>. Our cutting-edge cryptographic
@@ -124,11 +124,11 @@ export default function AboutUs() {
             attacks.
           </p>
           <p>
-            Whether you are an individual, business, or organization, LatticeTalks
+            Whether you are an individual, business, or organization, LatticeTalk
             provides an ultra-secure and seamless messaging experience. Our mission
             is simple: <strong>to protect your privacy in an evolving digital
             landscape</strong>. With end-to-end encryption and state-of-the-art cryptographic protocols,
-            LatticeTalks is more than just a chat app—it is a <strong>guarantee
+            LatticeTalk is more than just a chat app—it is a <strong>guarantee
             of privacy in the quantum era.</strong>
           </p>
         </div>
@@ -154,7 +154,7 @@ export default function AboutUs() {
         <div className={styles.aboutUsBox}>
           <h1>Meet the Team</h1>
           <p>
-            LatticeTalks is built by a passionate team of developers and
+            LatticeTalk is built by a passionate team of developers and
             cryptography enthusiasts, dedicated to creating the most secure
             communication platform of the future.
           </p>

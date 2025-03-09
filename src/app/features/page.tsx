@@ -12,9 +12,9 @@ export default function Features() {
       {/* Features Content */}
       <div className={styles.featuresContainer}>
         <div className={styles.featuresPage}>
-          <h1 className={styles.featuresTitle}>Why Choose LatticeTalks?</h1>
+          <h1 className={styles.featuresTitle}>Why Choose LatticeTalk?</h1>
           <p className={styles.featuresIntro}>
-            LatticeTalks is designed with cutting-edge security and ease of use in mind.
+            LatticeTalk is designed with cutting-edge security and ease of use in mind.
             Our platform leverages post-quantum cryptography to ensure your messages remain
             protected from evolving cyber threats.
           </p>
