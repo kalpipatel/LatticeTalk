@@ -1,20 +1,14 @@
-@font-face {
-  font-family: "ZonaPro";
-  src: url("/fonts/ZonaPro-Bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-}
-
 /* Apply bold ZonaPro font to the entire navbar */
 .navbar {
   width: 100%;
   padding: 16px 24px; /* Padding for top and bottom of navbar */
-  position: relative;
+  position: sticky;  /* Make the navbar sticky */
+  top: 0;            /* Stick to the top */
+  z-index: 1000;     /* Ensure the navbar stays above other elements */
   font-family: "ZonaPro", sans-serif;
   font-weight: 700;
   background-color: #ffffff;
   height: 70px;
-
 }
 
 /* Ensure the logo also has the bold font */

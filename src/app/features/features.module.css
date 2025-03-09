@@ -1,13 +1,13 @@
 
-.featuresPage {
+/* .featuresPage {
   background-color: #BB96EE; 
   display: flex;
   flex-direction: column;
   align-items: center; 
   justify-content: center; 
-  min-height: 100vh; /* Ensure it covers full viewport height */
-  width: 100vw; /* Ensure it covers full viewport width */
-  margin: 0; /* Remove any margins */
+  min-height: 100vh; 
+  width: 100vw; 
+  margin: 0; 
   padding: 0; 
 }
 
@@ -30,4 +30,127 @@
     font-weight: bold;
     min-height: 200px; 
   }
+   */
+
+
+
+.featuresPage {
+  background-color: #BB96EE;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 0px 20px;
   
+  
+}
+
+.featuresTitle {
+  font-family: "ZonaPro", sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.featuresIntro {
+  font-family: "ZonaPro", sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  text-align: center;
+  max-width: 800px;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+
+.featuresWrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  max-width: 900px;
+  width: 100%;
+}
+
+.featureBox {
+  background: #9FFEDE;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.featureBox h2 {
+  font-family: "ZonaPro", sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  margin-bottom: 10px;
+  
+}
+
+.featureBox p {
+  font-family: "ZonaPro", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  text-align: left;
+  line-height: 1.5;
+}
+
+/* Page Layout */
+.page {
+  --gray-rgb: 0, 0, 0;
+  --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
+  --gray-alpha-100: rgba(var(--gray-rgb), 0.05);
+  --button-primary-hover: #383838;
+  --button-secondary-hover: #E6E6E6;
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Navbar stays at the top */
+  align-items: center;
+  
+  min-height: 100vh;
+  padding: 40px;
+  font-family: "ZonaPro", sans-serif;
+  background-color: #E6E6E6;
+}
+
+/* Animated Background */
+@keyframes moveGrid {
+  0% { background-position: 0 0; }
+  20% { background-position: 20px -20px; }
+  40% { background-position: 40px 0; }
+  60% { background-position: 20px 20px; }
+  80% { background-position: -20px 40px; }
+  100% { background-position: 0 0; }
+}
+
+.animatedGrid {
+  animation: moveGrid 12s ease-in-out infinite; 
+  background-color: #E6E6E6; 
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+    linear-gradient(to right, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+/* Features Container */
+.features-container {
+  position: relative;
+  z-index: 1; /* To ensure the content is above the background */
+  text-align: center;
+}
+
+/* Features Title */
+.features-title {
+  font-size: 32px;
+  font-weight: bold;
+  margin-top: 60px;
+}
