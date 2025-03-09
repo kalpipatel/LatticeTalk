@@ -29,6 +29,7 @@ export function signMessage(privateKey, message) {
 // Verifies a signed message using SHAKE-256
 export function verifySignature(privateKey, message, signature) {
     const msgEncoded = new TextEncoder().encode(message);
+    console.log("msgEncoded:", msgEncoded);
     const computedSignature = shake256(new Uint8Array([...privateKey, ...msgEncoded]), { dkLen: 32 });
 
     //need to match inorder to verify

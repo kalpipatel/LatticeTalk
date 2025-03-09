@@ -51,8 +51,12 @@ function verifySignature(signPriv, encryptedMessage, signature) {
 
 
 function decryptMessage(kyberPriv, ciphertextKem, encryptedMessage) {
+    console.log(detectEncoding(kyberPriv));
+    console.log(detectEncoding(ciphertextKem));
+    console.log(detectEncoding(encryptedMessage));
     let sharedSecret2 = kyber.Decrypt768(ciphertextKem, kyberPriv); 
-    //console.log("Generated Shared Secret (decap):", sharedSecret2); // buffer
+    console.log("Generated Shared Secret (decap):", sharedSecret2); // buffer
+    console.log(detectEncoding(sharedSecret2));
 
     // convert the shared secret's buffer to a hex string 
     let ss2 = Buffer.from(sharedSecret2, 'utf8');
@@ -69,6 +73,28 @@ function decryptMessage(kyberPriv, ciphertextKem, encryptedMessage) {
     return { decryptedMessage, decSharedSecret };
 }
 
+function detectEncoding(data) {
+    if (data instanceof Uint8Array) {
+        return "Binary (Uint8Array)";
+    }
+    if (Buffer.isBuffer(data)) {
+        return "Binary (Buffer)";
+    }
+
+    if (typeof data === "string") {
+        if (/^[A-Za-z0-9+/=]+$/.test(data) && data.length % 4 === 0) {
+            return "Base64";
+        }
+        if (/^[0-9a-fA-F]+$/.test(data) && data.length % 2 === 0) {
+            return "Hexadecimal";
+        }
+        if (/^[\x20-\x7E]*$/.test(data)) {  // Printable ASCII range
+            return "Plaintext";
+        }
+    }
+
+    return "Unknown Format";
+}
 
 function main() {
     const { kyberPub, kyberPriv, signPriv, signPub } = generateKeys();
