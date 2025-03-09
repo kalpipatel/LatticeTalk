@@ -41,7 +41,7 @@ export async function POST(req) {
         User1KyberPub: sender.kyberPub,
         User2KyberPub: receiver.kyberPub,
         User1SignPub: sender.signPub,
-        User2SignPub: receiver.signPriv,
+        User2SignPub: receiver.signPub,
       });
 
       await chat.save();
@@ -57,8 +57,8 @@ export async function POST(req) {
 
     const kyberPubArray = Array.from(new Uint8Array(Buffer.from(userStringKey, 'base64')));
     const signPrivArray = new Uint8Array(Buffer.from(userStringSign, 'base64'));
-    console.log("Opponent's kyber public key:", userStringKey);
-    console.log("Sender's signing priv key:", userStringSign);
+    console.log("Opponent's kyber public key: (B-1)", userStringKey);
+    console.log("MY SIGNING PRIVATE KEY: (A-2)", userStringSign);
 
 
     const { ciphertextKem, encryptedMessage, encSharedSecret } = encryptMessage(kyberPubArray, message);
@@ -143,6 +143,8 @@ export async function GET(req) {
     // fetch recipient's private kyber key 
     const receiverPrivString = senderObj.kyberPriv;
     const signPubString = receiverObj.signPub;
+    console.log("MY OWN PRIVATE KEY (B-2):", receiverPrivString);
+    console.log("THEIR SIGN PUBLIC KEY (A-1):", signPubString);
 
     // query through chat between user1 and user2
     const chat = await Chat.findOne({ participants: { $all: [senderUsername, receiverUsername]}});
@@ -171,31 +173,40 @@ export async function GET(req) {
       console.log("Our message 1:", msg);
       const msgSign = new Uint8Array(Buffer.from(msg.signature, "base64"));
       const ciphertextKemArray = Array.from(new Uint8Array(Buffer.from(msg.ciphertextKem, "base64")));
+      const convertedMsg = Buffer.from(msg.encryptedMsg, 'base64');
+      const convertedEncryptedStr = convertedMsg.toString('utf8')
+      console.log("cheating msg", convertedEncryptedStr);
 
       console.log("Ciphertext", msg.ciphertextKem);
       console.log("encrypted Msg: ", msg.encryptedMsg);
       console.log("Signature", msg.signature);
 
-      if (!msg.encryptedMsg || !ciphertextKemArray|| !msgSign) {
+      if (!convertedMsg || !ciphertextKemArray|| !msgSign) {
           return msg; // check if all values exist 
       }
 
       if (msg.sender === senderUsername) {
         console.log("This msg is sent by me: ", senderUsername);
         // in this case message was SENT by me --> no need to decrypt, just verify signature
-        const isValid = verifySignature(senderSignPubArray, msg.encryptedMsg, msgSign);
-        return { ...msg.toObject(), content: isValid ? "[SENT MESSAGE]" : "[INVALID SIGNATURE]" };
+        const isValid = verifySignature(senderSignPubArray, convertedEncryptedStr, msgSign);
+        //return { ...msg.toObject(), content: isValid ? "[SENT MESSAGE]" : "[INVALID SIGNATURE]" };
+
+        // decrypt my own message using receipient's private key (which we don't have access to)
+        //const {decryptedMessage1, decSharedSecret } = decryptMessage(receiverObj.kyberPriv, ciphertextKemArray, convertedEncryptedStr);
+        //console.log("Decrypted message MY OWN TEXT:", decryptedMessage1);
+        return { ...msg.toObject(), content: "[ENCRYPTED]" };
       } else {
         try {
           // message was RECEIVED from opponent so SENDER: Decrypt any incoming message
-          const {decryptedMessage, decSharedSecret } = decryptMessage(receiverKyPrivArray, ciphertextKemArray, msg.encryptedMsg);
+          const {decryptedMessage, decSharedSecret } = decryptMessage(receiverKyPrivArray, ciphertextKemArray, convertedEncryptedStr);
           console.log("This is ", senderUsername, "'s DEC shared secret:", decSharedSecret);
   
           console.log("Decrypted message:", decryptedMessage);
 
           // must verify RECEIPIENT's signature with their pub key
-          const isValid = verifySignature(senderSignPubArray, msg.encryptedMsg, msgSign);
-          return { ...msg.toObject(), content: isValid ? decryptedMessage : "[INVALID SIGNATURE]" };
+          const isValid = verifySignature(senderSignPubArray, convertedEncryptedStr, msgSign);
+          //return { ...msg.toObject(), content: isValid ? decryptedMessage : "[INVALID SIGNATURE]" };
+          return { ...msg.toObject(), content: decryptedMessage };
             
         } catch (error) {
             console.error("Decryption error:", error);
