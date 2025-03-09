@@ -19,6 +19,7 @@ interface Message {
   _id?: string;
 }
 
+// initializes socket connection
 const socket: Socket = io("http://localhost:3001", {
   reconnection: true,
   reconnectionAttempts: 5,
@@ -41,9 +42,9 @@ const ChatPage = () => {
 
   const [receiverName, setReceiverName] = useState<string | null>(null);
 
-  const [chatId, setChatId] = useState<string | null>(null);  // FIND THE CHAT ID between those two useers^^ // this is kpats and teja
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [chatId, setChatId] = useState<string | null>(null); // stores chatId
+  const [message, setMessage] = useState(""); // stores message input
+  const [messages, setMessages] = useState<Message[]>([]);  // stores message history
 
   const [searchQuery, setSearchQuery] = useState(""); // Search query state
   const [filteredUsers, setFilteredUsers] = useState<any[]>([]); // Filtered users based on search query
@@ -78,6 +79,7 @@ const ChatPage = () => {
     }
   }, [searchQuery]);
 
+  // when user clicks a reciever, updates chat room
   const handleUserClick = async (receiverUsername: string, receiverKyberPub: String, receiverSignPub: String) => {
     try {
       setMessages([]);
@@ -143,15 +145,8 @@ const ChatPage = () => {
     const fetchMessages = async () => {
 
       try {
-        console.log(senderName);
-        console.log(receiverName);
         const response = await fetch(`/api/messages?sender=${senderName}&receiver=${receiverName}`);
         const result = await response.json();
-
-        console.log("we are here!!!!")
-
-        console.log(result.data)
-
 
         if (Array.isArray(result.data)) {
           setMessages(result.data); // Only set state if result is an array
@@ -210,7 +205,6 @@ const ChatPage = () => {
         if (prevMessages.some(msg => msg._id === newMessage._id)) {
           return prevMessages; // Ignore duplicate message
         }
-        //return [...prevMessages,  { ...newMessage, content: decryptedMessage }];
         return [...prevMessages, newMessage];
       });
     });
@@ -272,7 +266,7 @@ const ChatPage = () => {
 
       {/* Main Chat Section */}
       <div className={styles.chatRoom}>
-      <h2 className={styles.chatHeader}>{receiverName ? `Chat with ${receiverName}` : "Select Someone to Chat With!"}</h2>
+      <h2 className={styles.chatHeader}>{receiverName ? `Chat with ${receiverName}` : "Search Someone to Begin Chatting"}</h2>
 
         {/* Chat Messages */}
         <div className={styles.messages}>
@@ -307,16 +301,6 @@ const ChatPage = () => {
           >
             🎤
           </button>
-
-          {/* <button
-            className={`${styles.micButton} ${recording ? styles.recording : ""}`}
-            onMouseDown={startRecording}
-            onMouseUp={stopRecording}
-          >
-            🎤
-          </button> */}
-
-
         </div>
       </div>
     </div>
