@@ -5,6 +5,7 @@ import { io, Socket } from 'socket.io-client';
 import styles from './chat.module.css';
 import { useUser } from '@/context/userContext';
 import { encryptMessage } from '../../../BACKEND/encryption';
+import { useRouter } from "next/navigation";
 
 interface Message {
   sender: string;
@@ -25,7 +26,9 @@ const socket: Socket = io("http://localhost:3001", {
 
 const ChatPage = () => {
 
-  const { user } = useUser();
+  const { user, clearUser } = useUser();
+  const router = useRouter();
+
 
   if (!user) {
     return <div>Please log in first. </div>;
@@ -258,6 +261,19 @@ const ChatPage = () => {
             </div>
           )}
         </div>
+
+            {/* Add Sign Out Button */}
+            <div>
+            <button 
+              className={styles['toggle-button']} 
+              onClick={() => {
+                clearUser(); // Clear user data
+                router.push("./"); // Redirect to home page
+              }}
+            >
+              Sign Out
+            </button>
+            </div>
       </div>
 
 

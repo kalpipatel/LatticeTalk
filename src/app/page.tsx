@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { UserProvider, useUser } from "../context/userContext";
 
 export default function Home() {
-  const { setUser } = useUser();
+  const { setUser, clearUser } = useUser();
   const [username, setUsername] = useState("");
   const [isSignIn, setSignIn] = useState(true);
   const [email, setEmail] = useState("");
@@ -52,10 +52,14 @@ export default function Home() {
   } catch (error) {
     console.log("Error sign in failed");
   }
-};const postSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+};
+
+const postSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
   setError(null); // Clear previous errors
 
+
+  // WHAT is going on here???????????
   // These values are for demonstration; they're also set by default on the backend if omitted.
   const kyberPub = "1";  
   const kyberPriv = "2"; 

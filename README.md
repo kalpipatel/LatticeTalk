@@ -5,21 +5,24 @@ LatticeTalk is a secure messaging application that leverages lattice-based crypt
 
 ## Features
 
-
 - Post Quantum Security: We use lattice-based cryptography for our encryption system. To learn more about lattice-based cryptography, visit: 
 - Real-Time Messaging: LatticeTalk offers secure communication with a responsive UI
 - End-to-end Encryption: Ensures message confidentiality
 - Digital Signatures: LatticeTalk verifies message authenticity to ensure
 
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
 ## Tech Stack 
 
 Here is the tech stack LatticeTalk is built with:
-- Frontend: Next.js, React, 
-- Backend: Node.js, Express
+- Frontend: Next.js, React, TypeScript
+- Backend: Node.js, Socket.io
 - Database: MongoDB
-- Cryptography: lattice-based encryption (Kyber, )
+- Cryptography: lattice-based encryption (Kyber, Dilithium)
 
 ## Setup
+
+Running the Project
+1. Install dependencies with "npm install"
+1. To start server: "node backend/server.js" 
+2. "npm run dev"
+This will start the application on http://localhost:3000

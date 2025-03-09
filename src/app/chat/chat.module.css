@@ -34,6 +34,18 @@
   transition: background-color 0.2s ease-in-out;
 }
 
+.toggle-button {
+  margin-top: auto; /* Pushes the button to the bottom */
+  background-color: #BB96EE; /* Set your button color */
+  color: white;
+  border: none;
+  padding: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background-color 0.2s ease-in-out;
+}
+
 .sidebarItem:hover {
   background-color: #BB96EE; 
   border-radius: 5px; 

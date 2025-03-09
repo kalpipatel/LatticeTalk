@@ -15,7 +15,11 @@ interface User {
 }
 
 // create the UserContext
-export const UserContext = createContext<{ user: User | null; setUser: (user: User) => void } | null>(null);
+export const UserContext = createContext<{ 
+  user: User | null; 
+  setUser: (user: User) => void 
+  clearUser: () => void;
+} | null>(null);
 
 // UserProvider component to wrap around layout.tsx
 export function UserProvider({ children }: { children: ReactNode }) {
@@ -26,7 +30,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
     console.log("UserContext Updated:", user);
   }, [user]);
 
-  return <UserContext.Provider value={{ user, setUser }}>{children}</UserContext.Provider>;
+  const clearUser = () => {
+    setUser(null);
+  };
+
+  return <UserContext.Provider value={{ user, setUser, clearUser }}>{children}</UserContext.Provider>;
 }
 
 // use custom hook to use the UserContext
