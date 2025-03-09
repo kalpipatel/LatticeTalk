@@ -169,13 +169,6 @@ export default function Home() {
           }
         </div>
       </div>
-
-      {/* Navigation link to the chat page */}
-      <div className={styles["chat-link-container"]}>
-        <Link href="/chat">
-          <button className={styles['toggle-button']}>Go to Chat (Temp)</button>
-        </Link>
-      </div>
     </div>
   );
 }

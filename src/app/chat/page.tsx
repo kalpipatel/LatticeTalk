@@ -9,7 +9,7 @@ import { encryptMessage } from '../../../BACKEND/encryption';
 interface Message {
   sender: string;
   receiver: string;
-  content: string;
+  content?: string;
   timestamp?: string;
   ciphertext? : string;
   encrypted? : string;
@@ -34,20 +34,82 @@ const ChatPage = () => {
   const senderName = user.username;
   const senderKyberPub = user.kyberPub;
   const senderSignPub = user.signPub;
-  const receiverName = "doe"; // TEJAA FIND THE RECIVER NAMEEEEEEEE and assign it to this variable
 
-  const [chatId, setChatId] = useState("67cc0fbc0f6e9f24b65a3f1f");  // FIND THE CHAT ID between those two useers^^ // this is kpats and teja
+  const [receiverName, setReceiverName] = useState<string | null>(null);
+
+  const [chatId, setChatId] = useState<string | null>(null);  // FIND THE CHAT ID between those two useers^^ // this is kpats and teja
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
 
   const [searchQuery, setSearchQuery] = useState(""); // Search query state
   const [filteredUsers, setFilteredUsers] = useState<any[]>([]); // Filtered users based on search query
 
+  useEffect(() => {
+    const fetchUsers = async (query: string) => {
+      if (query) {
+        try {
+          const response = await fetch(`/api/search?query=${query}`);
+          const result = await response.json();
 
-  //Search Button
-  const [searchVisible, setSearchVisible] = useState(false);
-  const [searchInput, setSearchInput] = useState<string>("");
-  const [savedSearch, setSavedSearch] = useState(""); //Searched user variable
+          if (response.ok) {
+            setFilteredUsers(result.users); // Set the filtered users based on query
+          } else {
+            setFilteredUsers([]); // Clear results if no users found
+          }
+        } catch (error) {
+          console.error("Error fetching users:", error);
+        }
+      } else {
+        setFilteredUsers([]); // Clear results if the input is empty
+      }
+    };
+
+    if (searchQuery) {
+      fetchUsers(searchQuery); // Trigger the fetch when the searchQuery changes
+    } else {
+      setFilteredUsers([]); // Clear users if search query is empty
+    }
+  }, [searchQuery]);
+
+  const handleUserClick = async (receiverUsername: string, receiverKyberPub: String, receiverSignPub: String) => {
+    try {
+      setMessages([]);
+
+      const senderUsername = senderName; // Sender's username (from context or state)
+      const senderKyberPub = user.kyberPub; // Sender's Kyber Public Key
+      const senderSignPub = user.signPub; // Sender's Signature Public Key
+  
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          senderUsername,
+          receiverUsername,
+          senderKyberPub,
+          senderSignPub,
+          receiverKyberPub,
+          receiverSignPub,
+        }),
+      });
+  
+      const result = await response.json();
+      if (response.ok) {
+
+        const chat = result.chat;  // this allows us to access the participants, chatID, etc.
+
+        console.log('Chat created or retrieved successfully:', result);
+        setChatId(chat._id);
+        setReceiverName(chat.participants.find((participant: string) => participant !== senderName));
+        
+      } else {
+        console.error('Error creating chat:', result.error);
+      }
+    } catch (error) {
+      console.error('Error fetching /api/chat:', error);
+    }
+  };
 
 
   useEffect(() => {
@@ -67,21 +129,30 @@ const ChatPage = () => {
 
   useEffect(() => {
     const fetchMessages = async () => {
+
       try {
+        console.log(senderName);
+        console.log(receiverName);
         const response = await fetch(`/api/messages?sender=${senderName}&receiver=${receiverName}`);
         const result = await response.json();
-        console.log(result); // Log the API response
+
+        console.log("we are here!!!!")
+
+        console.log(result.data)
+
 
         if (Array.isArray(result.data)) {
           setMessages(result.data); // Only set state if result is an array
         } else {
           console.error("Expected an array of messages, but got:", result);
         }
+
       } catch (error) {
         console.error("Error fetching messages:", error);
       }
     };
-    if (chatId) {
+    if (chatId && receiverName) {
+      console.log("Fetching messages for chatId:", chatId, "receiver:", receiverName);
       fetchMessages(); // Call fetchMessages when the component mounts or chatId changes
     }
   }, [chatId, receiverName]);
@@ -107,7 +178,7 @@ const ChatPage = () => {
       console.log("Message saved successfully:", data);
       setMessages((prevMessages) => [
         ...prevMessages,
-        { sender: senderName, receiver: receiverName, content:  message.trim()},
+        { sender: senderName, receiver: receiverName ?? "", content:  message.trim()},
       ]);
     } else {
       console.error("Error saving message:", data.error);
@@ -115,8 +186,6 @@ const ChatPage = () => {
   } catch (error) {
     console.error("Error sending message:", error);
   }
-
-
     setMessage("");
   };
 
@@ -153,66 +222,9 @@ const ChatPage = () => {
     return () => {
       socket.off("receiveMessage"); // Cleanup to prevent duplicate listeners
     };
-  }, []);
+  }, [chatId, receiverName]);
 
-  useEffect(() => {
-    const fetchUsers = async (query: string) => {
-      if (query) {
-        try {
-          const response = await fetch(`/api/search?query=${query}`);
-          const result = await response.json();
-
-          if (response.ok) {
-            setFilteredUsers(result.users); // Set the filtered users based on query
-          } else {
-            setFilteredUsers([]); // Clear results if no users found
-          }
-        } catch (error) {
-          console.error("Error fetching users:", error);
-        }
-      } else {
-        setFilteredUsers([]); // Clear results if the input is empty
-      }
-    };
-
-    if (searchQuery) {
-      fetchUsers(searchQuery); // Trigger the fetch when the searchQuery changes
-    } else {
-      setFilteredUsers([]); // Clear users if search query is empty
-    }
-  }, [searchQuery]);
-
-  const handleUserClick = async (receiverUsername: string, receiverKyberPub: String, receiverSignPub: String) => {
-    try {
-      const senderUsername = senderName; // Sender's username (from context or state)
-      const senderKyberPub = user.kyberPub; // Sender's Kyber Public Key
-      const senderSignPub = user.signPub; // Sender's Signature Public Key
   
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          senderUsername,
-          receiverUsername,
-          senderKyberPub,
-          senderSignPub,
-          receiverKyberPub,
-          receiverSignPub,
-        }),
-      });
-  
-      const result = await response.json();
-      if (response.ok) {
-        console.log('Chat created or retrieved successfully:', result);
-      } else {
-        console.error('Error creating chat:', result.error);
-      }
-    } catch (error) {
-      console.error('Error fetching /api/chat:', error);
-    }
-  };
   
 
   return (

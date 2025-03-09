@@ -12,21 +12,22 @@ export async function POST(req) {
 
     const { username, email, password } = requestData;
 
-    // Validate required fields
-    if (!username || !email || !password) {
-      console.log("Missing required fields:", { username, email, password });
-      return NextResponse.json({ error: "All fields are required" }, { status: 400 });
+    if (!username?.trim()) {
+      return NextResponse.json({ error: "Please enter username" }, { status: 400 });
+    }
+    if (!email?.trim()) {
+      return NextResponse.json({ error: "Please enter email" }, { status: 400 });
+    }
+    if (!password?.trim()) {
+      return NextResponse.json({ error: "Please enter password" }, { status: 400 });
     }
 
-    // Check if the user already exists
+    // checks if the user already exists
     const existingUser = await User.findOne({ email });
     console.log("Existing user found:", existingUser);
     if (existingUser) {
       return NextResponse.json({ error: "User already exists" }, { status: 400 });
     }
-
-    // Destructure the incoming data. Use "let" so we can modify if needed.
-    //let { username, email, password, kyberPriv, kyberPub, signPriv, signPub } = requestData;
 
     // generate key pairs before storing
     const {kyberPub, kyberPriv, signPub, signPriv} = generateKeys();  
@@ -52,6 +53,7 @@ export async function POST(req) {
     console.log("New user created:", newUser);
 
     return NextResponse.json({ message: "User created successfully" }, { status: 201 });
+  
   } catch (error) {
     console.error("Error in sign-up:", error);
     return NextResponse.json({ error: "Server error", details: error.message }, { status: 500 });
@@ -73,7 +75,7 @@ export async function GET(req) {
 
     // check log in
     if (!username || !password) {
-      return NextResponse.json({ error: "All fields are required" }, { status: 400 });
+      return NextResponse.json({ error: "Please enter your username and password." }, { status: 400 });
     }
 
     // check if MongoDB connection is working
@@ -90,7 +92,7 @@ export async function GET(req) {
 
     // verify password: check directly for now
     if (password !== user.password) {
-        return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+        return NextResponse.json({ error: "Invalid password." }, { status: 401 });
     }
 
     console.log("User found, sending full user object:", username);

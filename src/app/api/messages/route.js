@@ -9,6 +9,8 @@ import Message from "../../../../BACKEND/models/Chat";
 import { encryptMessage, signMessage } from "@/../BACKEND/encryption";
 import { decryptMessage, verifySignature } from "@/../BACKEND/encryption";
 
+// this function saves the message to the chat array
+// eventually we want the actual message to NOT be saved, just the ciphertext
 export async function POST(req) {
 
   await connectToDatabase();  // ensures db is connected
@@ -17,7 +19,7 @@ export async function POST(req) {
     const { senderUsername, receiverUsername, message } = await req.json();
 
     if (!senderUsername || !receiverUsername || !message) {
-      return NextResponse.json({error: "missing something"}, {status: 400});
+      return NextResponse.json({error: "Missing sender, receiver, or message."}, {status: 400});
     }
 
     const sender = await User.findOne({ username: senderUsername });
@@ -30,8 +32,8 @@ export async function POST(req) {
 
     let chat = await Chat.findOne({participants: { $all: [senderUsername, receiverUsername] } });
 
+    // creates chat if does not exist 
     if (!chat) {
-
       chat = new Chat({
         participants: [senderUsername, receiverUsername],
         messages: [],
@@ -117,6 +119,8 @@ export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const senderUsername = searchParams.get("sender"); // switch for fetching/decrypting
   const receiverUsername = searchParams.get("receiver");
+
+  console.log(senderUsername, receiverUsername);
 
   if (!senderUsername || !receiverUsername) {
     return NextResponse.json({ error: "Missing sender or receiver name"})
