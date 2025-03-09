@@ -16,87 +16,94 @@ export default function Home() {
   const [isSignIn, setSignIn] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  
+
   const getSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+    e.preventDefault();
+    setError(null);
 
-  const endpoint = `/api/users?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+    const endpoint = `/api/users?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
 
-  try {
-    const response = await fetch(endpoint, {
-      method: "GET",
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch data");
+    if (!username || !password) {
+      setError("Username and password are required.");
+      return;
     }
 
-    const data = await response.json();
-    router.push("/chat");
-    console.log("Log-in successful:", data); 
+    try {
+      const response = await fetch(endpoint, {
+        method: "GET",
+      });
 
-    // store user in react context
-    setUser({
-      username : data.username,
-      email : data.email,
-      password : data.password, 
-      kyberPub : data.kyberPub,
-      kyberPriv : data.kyberPriv,
-      signPub : data.signPub,
-      signPriv : data.signPriv });
-    
-    router.push("/chat")
-    
-  } catch (error) {
-    console.log("Error sign in failed");
-  }
-};
+      if (!response.ok) {
+        throw new Error("Invalid username or password. Please try again.");
+      }
 
-const postSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  setError(null); // Clear previous errors
+      const data = await response.json();
+      router.push("/chat");
+      console.log("Log-in successful:", data);
 
+      // store user in react context
+      setUser({
+        username: data.username,
+        email: data.email,
+        password: data.password,
+        kyberPub: data.kyberPub,
+        kyberPriv: data.kyberPriv,
+        signPub: data.signPub,
+        signPriv: data.signPriv
+      });
 
-  // WHAT is going on here???????????
-  // These values are for demonstration; they're also set by default on the backend if omitted.
-  const kyberPub = "1";  
-  const kyberPriv = "2"; 
-  const signPub = "3";   
-  const signPriv = "4";  
+      router.push("/chat")
 
-  // Point directly to the backend running on port 3001
-  //const endpoint = "http://localhost:3001/api/users";
-  const endpoint = "/api/users";
-  const payload = { username, email, password, kyberPub, kyberPriv, signPub, signPriv };
-
-  try {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({username, email, password}),
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Failed to sign up");
+    } catch (error: any) {
+      setError(error.message || "An error occurred. Please try again.");
     }
+  };
 
-    console.log("Sign-up successful:", data);
-    alert("Sign-up successful! You can now log in.");
-  } catch (error) {
-    console.log("Error sign-up failed:", error);
-  }
-};
+  const postSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null); // Clear previous errors
+
+
+    // WHAT is going on here???????????
+    // These values are for demonstration; they're also set by default on the backend if omitted.
+    const kyberPub = "1";
+    const kyberPriv = "2";
+    const signPub = "3";
+    const signPriv = "4";
+
+    // Point directly to the backend running on port 3001
+    //const endpoint = "http://localhost:3001/api/users";
+    const endpoint = "/api/users";
+    const payload = { username, email, password, kyberPub, kyberPriv, signPub, signPriv };
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to sign up");
+      }
+
+      console.log("Sign-up successful:", data);
+      alert("Sign-up successful! You can now log in.");
+    } catch (error) {
+      console.log("Error sign-up failed:", error);
+    }
+  };
 
   return (
     <div className={styles.page}>
       {/* Animated Background */}
       <div className={styles.animatedGrid}></div>
-      
+
       {/* Navbar */}
       <nav className={styles.navbar}>
         {/* Add your own links or content here */}
@@ -105,70 +112,71 @@ const postSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       {/* Login box */}
       <div className={styles["login-container"]}>
         <div className={styles["login-shadow"]}></div>
-       <div>
-  {
-    isSignIn ? (
-      <button className={styles['toggle-button']} onClick={() => setSignIn(false)}> Sign Up </button>
-    ) : (
-      <button className={styles['toggle-button']} onClick={() => setSignIn(true)}> Sign In </button>
-    )
-  }
-</div>
+        <div>
+          {
+            isSignIn ? (
+              <button className={styles['toggle-button']} onClick={() => setSignIn(false)}> Sign Up </button>
+            ) : (
+              <button className={styles['toggle-button']} onClick={() => setSignIn(true)}> Sign In </button>
+            )
+          }
+        </div>
 
         <div className={styles["login-box"]}>
           {
             isSignIn ? (
               <form onSubmit={getSubmit}>
-              <h2 className={styles["login-title"]}>Login</h2>
-              <input 
-              className={styles["login-input"]} 
-              type="text" 
-              required 
-              onChange={(e) => setUsername(e.target.value)} 
-              value={username} 
-              placeholder="Username" 
-              />
-              <input 
-              className={styles["login-input"]} 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
-              placeholder="Password" 
-              />
-            <button className={styles["toggle-button"]}>Submit</button>
-                </form>
-                
+                <h2 className={styles["login-title"]}>Login</h2>
+                <input
+                  className={styles["login-input"]}
+                  type="text"
+                  required
+                  onChange={(e) => setUsername(e.target.value)}
+                  value={username}
+                  placeholder="Username"
+                />
+                <input
+                  className={styles["login-input"]}
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="Password"
+                />
+                {error && <p className={styles["error-message"]}>{error}</p>}
+                <button className={styles["toggle-button"]}>Submit</button>
+              </form>
+
             ) : (
-                <form onSubmit={postSubmit}>
+              <form onSubmit={postSubmit}>
                 <h2 className={styles["login-title"]}>Sign Up</h2>
-              
-                  <input 
-              className={styles["login-input"]} 
-              type="text" 
-              required 
-              onChange={(e) => setUsername(e.target.value)} 
-              value={username} 
-              placeholder="Username" 
-                  />
-                  <input 
-              className={styles["login-input"]} 
-              type="text" 
-              required 
-              onChange={(e) => setEmail(e.target.value)} 
-              value={email} 
-              placeholder="Email" 
-              />
-              <input 
-              className={styles["login-input"]} 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
-              placeholder="Password" 
-              />
-            <button className={styles["toggle-button"]}>Submit</button>
-            </form>
+
+                <input
+                  className={styles["login-input"]}
+                  type="text"
+                  required
+                  onChange={(e) => setUsername(e.target.value)}
+                  value={username}
+                  placeholder="Username"
+                />
+                <input
+                  className={styles["login-input"]}
+                  type="text"
+                  required
+                  onChange={(e) => setEmail(e.target.value)}
+                  value={email}
+                  placeholder="Email"
+                />
+                <input
+                  className={styles["login-input"]}
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="Password"
+                />
+                <button className={styles["toggle-button"]}>Submit</button>
+              </form>
             )
           }
         </div>
