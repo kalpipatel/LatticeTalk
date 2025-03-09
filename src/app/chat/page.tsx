@@ -222,10 +222,7 @@ const ChatPage = () => {
     return () => {
       socket.off("receiveMessage"); // Cleanup to prevent duplicate listeners
     };
-  }, [chatId, receiverName]);
-
-  
-  
+  }, [chatId, receiverName]); 
 
   return (
     <div className={styles.chatContainer}>
