@@ -127,8 +127,7 @@ export default function AboutUs() {
             Whether you are an individual, business, or organization, LatticeTalks
             provides an ultra-secure and seamless messaging experience. Our mission
             is simple: <strong>to protect your privacy in an evolving digital
-            landscape</strong>. With end-to-end encryption, zero-knowledge
-            security principles, and state-of-the-art cryptographic protocols,
+            landscape</strong>. With end-to-end encryption and state-of-the-art cryptographic protocols,
             LatticeTalks is more than just a chat app—it is a <strong>guarantee
             of privacy in the quantum era.</strong>
           </p>
@@ -144,10 +143,6 @@ export default function AboutUs() {
             <li>
               <strong>End-to-End Encryption:</strong> Only you and your recipient
               can read your messages—no middleman, no compromises.
-            </li>
-            <li>
-              <strong>Zero-Knowledge Architecture:</strong> We do not store your
-              messages or personal data, ensuring complete privacy.
             </li>
             <li>
               <strong>Open-Source & Transparent:</strong> Our cryptographic

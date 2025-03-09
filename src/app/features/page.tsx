@@ -108,10 +108,9 @@ export default function Features() {
               </p>
             </div>
             <div className={styles.featureBox}>
-              <h2>🛡 Zero-Knowledge Architecture</h2>
+              <h2>💬 Speech-to-Text</h2>
               <p>
-                We store no user data or message history, making it impossible for anyone
-                (including us) to access your information.
+              LatticeTalk's speech-to-text feature converts spoken words into encrypted text in real time for secure and effortless communication.
               </p>
             </div>
             <div className={styles.featureBox}>
@@ -122,10 +121,9 @@ export default function Features() {
               </p>
             </div>
             <div className={styles.featureBox}>
-              <h2>💻 Cross-Platform</h2>
+              <h2>⏳ Real-Time Messaging</h2>
               <p>
-                LatticeTalks works across all platforms, from desktop to mobile, ensuring seamless communication
-                wherever you are.
+              Real-time messaging in LatticeTalk enables instant, secure communication using post-quantum encryption for privacy and speed.
               </p>
             </div>
             <div className={styles.featureBox}>
