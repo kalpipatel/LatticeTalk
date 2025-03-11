@@ -97,12 +97,12 @@ function detectEncoding(data) {
 }
 
 function main() {
-    const { kyberPub, kyberPriv, signPriv, signPub } = generateKeys();
+    const { kyberPub, kyberPriv, signPub, signPriv } = generateKeys();
 
     console.log("Public Key for Kyber:", kyberPub);
     console.log("Private Key for Kyber:", kyberPriv);
-    console.log("Public Key for DSA:", signPriv);
-    console.log("Private Key for DSA:", signPub);
+    console.log("Public Key for DSA:", signPub);
+    console.log("Private Key for DSA:", signPriv);
 
     const textMsg = "This is a secure message.";
 
@@ -115,7 +115,7 @@ function main() {
     console.log("Signature:", signature);
 
     // Verify Signature using the Public Key
-    const isValid = verifySignature(signPriv, encryptedMessage, signature);
+    const isValid = verifySignature(signPub, encryptedMessage, signature);
     console.log("Signature Verified:", isValid);
 
     // Decrypt Message
