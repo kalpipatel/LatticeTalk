@@ -66,11 +66,12 @@ export async function POST(req) {
 
     // generate signature before storing 
     const signature = signMessage(signPrivArray, encryptedMessage);
+    console.log("this is signature at encryption:", signature);
 
     // convert to base 64 before creating new message
     const cipher64 = Buffer.from(ciphertextKem).toString("base64");
     const encrypted64 = Buffer.from(encryptedMessage).toString("base64");
-    const signature64 = Buffer.from(signature).toString("base64");
+    const signature64 = Buffer.from(signature.sig).toString("base64");
 
     // creates a new message
     const newMessage = {
@@ -187,15 +188,17 @@ export async function GET(req) {
         return { ...msg.toObject(), content: msg.content };
       } else {
         try {
+          // must verify RECEIPIENT's signature with their pub key
+          const isValid = verifySignature(senderSignPubArray, convertedEncryptedStr, msgSign);
+          console.log("verified signature", isValid);
+
           // message was RECEIVED from opponent so SENDER: Decrypt any incoming message
           const {decryptedMessage, decSharedSecret } = decryptMessage(receiverKyPrivArray, ciphertextKemArray, convertedEncryptedStr);
           console.log("This is", senderUsername, "'s DEC shared secret:", decSharedSecret);
           console.log("Decrypted message:", decryptedMessage);
 
-          // must verify RECEIPIENT's signature with their pub key
-          const isValid = verifySignature(senderSignPubArray, convertedEncryptedStr, msgSign);
-          //return { ...msg.toObject(), content: isValid ? decryptedMessage : "[INVALID SIGNATURE]" };
-          return { ...msg.toObject(), content: decryptedMessage };
+          return { ...msg.toObject(), content: isValid ? decryptedMessage : "[INVALID SIGNATURE]" };
+          //return { ...msg.toObject(), content: decryptedMessage };
             
         } catch (error) {
             console.error("Decryption error:", error);
