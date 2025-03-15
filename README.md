@@ -1,5 +1,3 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
 ## Overview
 LatticeTalk is a secure messaging application that leverages lattice-based cryptography to provide post-quantum secure communication. It offers end-to-end encryption that is resistant to quantum attacks, making it future-proof for secure messaging.
 
